@@ -31,6 +31,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    }
+
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File exceeds 10MB limit" },

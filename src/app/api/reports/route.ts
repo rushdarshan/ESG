@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    }
     // Fetch organization
     const org = await db.organization.findUnique({
       where: { id: organizationId },

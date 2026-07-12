@@ -26,10 +26,10 @@ const FADE_UP = {
 };
 
 const QUICK_STATS = [
-  { label: "Electricity", value: "128,450 kWh", change: "+4.2%", icon: Lightning, color: "text-amber-500" },
+  { label: "Electricity", value: "128,450 kWh", change: "+4.2%", icon: Lightning, color: "text-emerald-500" },
   { label: "Fleet Fuel", value: "8,500 L", change: "-8.1%", icon: TreeEvergreen, color: "text-emerald-500" },
-  { label: "Water", value: "45,000 L", change: "+1.3%", icon: Drop, color: "text-blue-500" },
-  { label: "Waste Diverted", value: "74%", change: "+12%", icon: Trash, color: "text-violet-500" },
+  { label: "Water", value: "45,000 L", change: "+1.3%", icon: Drop, color: "text-emerald-500" },
+  { label: "Waste Diverted", value: "74%", change: "+12%", icon: Trash, color: "text-emerald-500" },
 ];
 
 export default function EnvironmentPage() {
@@ -154,7 +154,7 @@ export default function EnvironmentPage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Abatement Cost Curve
                 </h2>
-                <span className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-500">
+                <span className="rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">
                   IEA / IRENA / NREL
                 </span>
               </div>

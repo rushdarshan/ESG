@@ -5,8 +5,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const SCOPE_DATA = [
   { name: "Scope 1 — Direct", value: 22.7, color: "#059669", confidence: 0.92 },
-  { name: "Scope 2 — Electricity", value: 61.4, color: "#3b82f6", confidence: 0.88 },
-  { name: "Scope 3 — Indirect", value: 58.7, color: "#8b5cf6", confidence: 0.74 },
+  { name: "Scope 2 — Electricity", value: 61.4, color: "#10b981", confidence: 0.88 },
+  { name: "Scope 3 — Indirect", value: 58.7, color: "#34d399", confidence: 0.74 },
 ];
 
 const TOTAL = SCOPE_DATA.reduce((sum, s) => sum + s.value, 0);

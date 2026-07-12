@@ -8,6 +8,7 @@ export interface ScenarioInfo {
 }
 
 export async function listScenarios(): Promise<ScenarioInfo[]> {
+  if (!db) return [];
   const orgs = await db.organization.findMany({
     include: {
       scores: {
@@ -26,6 +27,7 @@ export async function listScenarios(): Promise<ScenarioInfo[]> {
 }
 
 export async function getScenarioData(organizationId: string) {
+  if (!db) return null;
   const org = await db.organization.findUnique({
     where: { id: organizationId },
     include: {

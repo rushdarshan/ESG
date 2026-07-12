@@ -48,7 +48,7 @@ const DEFAULT_HASH_CHAIN = [
 ];
 
 const STATUS_CONFIG = {
-  met: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50", label: "Met" },
+  met: { icon: CheckCircle, color: "text-violet-500", bg: "bg-violet-50", label: "Met" },
   partial: { icon: Warning, color: "text-amber-500", bg: "bg-amber-50", label: "Partial" },
   gap: { icon: XCircle, color: "text-rose-500", bg: "bg-rose-50", label: "Gap" },
 };
@@ -155,7 +155,7 @@ export default function GovernancePage() {
               setGenerating(false);
             }}
             disabled={generating}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60"
+            className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-violet-600/20 transition-colors hover:bg-violet-700 active:scale-[0.98] disabled:opacity-60"
           >
             <FileText className="h-4 w-4" />
             {generating ? "Generating..." : "Generate Report"}
@@ -184,7 +184,7 @@ export default function GovernancePage() {
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
           {[
-            { label: "GRI Score", value: `${griScore}%`, color: "text-emerald-600" },
+            { label: "GRI Score", value: `${griScore}%`, color: "text-violet-600" },
             { label: "CSRD Score", value: `${csrdScore}%`, color: "text-blue-600" },
             { label: "Evidence Records", value: `${evidenceCount}`, color: "text-slate-900" },
             { label: "Open Gaps", value: `${griGap}`, color: "text-rose-600" },
@@ -205,7 +205,7 @@ export default function GovernancePage() {
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
               <p className="text-sm text-slate-400">Loading compliance data...</p>
             </div>
           </div>
@@ -227,8 +227,8 @@ export default function GovernancePage() {
                 className="flex w-full items-center justify-between p-6 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-                    <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
+                    <ShieldCheck className="h-5 w-5 text-violet-600" />
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-semibold text-slate-800">
@@ -242,7 +242,7 @@ export default function GovernancePage() {
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-emerald-500"
+                      className="h-full rounded-full bg-violet-500"
                       style={{ width: `${griScore}%` }}
                     />
                   </div>
@@ -416,12 +416,12 @@ export default function GovernancePage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Evidence Chain
                 </h2>
-                <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1">
+                <div className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2 py-1">
                   <CheckCircle
-                    className="h-3 w-3 text-emerald-500"
+                    className="h-3 w-3 text-violet-500"
                     weight="fill"
                   />
-                  <span className="text-[10px] font-medium text-emerald-600">
+                  <span className="text-[10px] font-medium text-violet-600">
                     Verified
                   </span>
                 </div>

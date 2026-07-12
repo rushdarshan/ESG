@@ -139,7 +139,7 @@ export function MACCCurve() {
                     m.selected
                       ? m.costPerTonne < 0
                         ? "#059669"
-                        : "#3b82f6"
+                        : "#047857"
                       : "#e2e8f0"
                   }
                   cursor="pointer"
