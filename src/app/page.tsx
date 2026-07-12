@@ -356,7 +356,13 @@ function FooterSection() {
 }
 
 export default function LandingPage() {
-  const reduced = useReducedMotion() ?? false;
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setReduced(prefersReducedMotion));
+    return () => cancelAnimationFrame(frame);
+  }, [prefersReducedMotion]);
 
   return (
     <div className="min-h-[100dvh] bg-white text-slate-900 dark:bg-zinc-950 dark:text-zinc-100">
