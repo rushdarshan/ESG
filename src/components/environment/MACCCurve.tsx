@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -13,21 +13,22 @@ import {
 } from "recharts";
 import { CheckCircle, Plus } from "@phosphor-icons/react";
 
-const MACC_MEASURES = [
-  { id: "led", name: "LED Retrofit", costPerTonne: -45, reduction: 8.2, source: "IEA", selected: false },
-  { id: "insulation", name: "Building Insulation", costPerTonne: -32, reduction: 5.1, source: "IRENA", selected: false },
-  { id: "wfh", name: "WFH Policy Expansion", costPerTonne: -18, reduction: 3.4, source: "McKinsey", selected: false },
-  { id: "recycling", name: "Enhanced Recycling", costPerTonne: -12, reduction: 2.8, source: "NREL", selected: false },
-  { id: "solar", name: "Rooftop Solar (200kW)", costPerTonne: 28, reduction: 22.0, source: "IEA", selected: true },
-  { id: "ev", name: "EV Fleet Transition", costPerTonne: 45, reduction: 15.3, source: "IRENA", selected: false },
-  { id: "heatpump", name: "Heat Pump Install", costPerTonne: 62, reduction: 9.7, source: "NREL", selected: false },
-  { id: "bess", name: "Battery Storage", costPerTonne: 85, reduction: 6.4, source: "IEA", selected: false },
-  { id: "hydrogen", name: "Green Hydrogen Pilot", costPerTonne: 120, reduction: 4.2, source: "IRENA", selected: false },
-  { id: "ccs", name: "Carbon Capture (Pilot)", costPerTonne: 180, reduction: 12.0, source: "McKinsey", selected: false },
-];
+interface MACCMeasure {
+  id: string;
+  name: string;
+  costPerTonne: number;
+  reduction: number;
+  source: string;
+  selected: boolean;
+  annualFinancialSavings: number;
+  implementationCost: number;
+  paybackPeriod: number;
+  category: string;
+  assumptions: string;
+  cumulativeReduction: number;
+}
 
-interface TooltipPayload { name: string; costPerTonne: number; reduction: number; source: string }
-interface TooltipProps { active?: boolean; payload?: Array<{ payload: TooltipPayload }> }
+interface TooltipProps { active?: boolean; payload?: Array<{ payload: MACCMeasure }> }
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
@@ -42,8 +43,32 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
   );
 };
 
+const FALLBACK_MEASURES: MACCMeasure[] = [
+  { id: "led-retrofit", name: "LED Lighting Retrofit", costPerTonne: -45, reduction: 82, source: "IEA", selected: true, annualFinancialSavings: 14200, implementationCost: 35000, paybackPeriod: 2.46, category: "energy-efficiency", assumptions: "", cumulativeReduction: 82 },
+  { id: "building-insulation", name: "Building Insulation Upgrade", costPerTonne: -32, reduction: 51, source: "IRENA", selected: true, annualFinancialSavings: 9800, implementationCost: 85000, paybackPeriod: 8.67, category: "energy-efficiency", assumptions: "", cumulativeReduction: 133 },
+  { id: "wfh-policy", name: "Work-from-Home Policy Expansion", costPerTonne: -18, reduction: 34, source: "McKinsey", selected: true, annualFinancialSavings: 12500, implementationCost: 8000, paybackPeriod: 0.64, category: "operational", assumptions: "", cumulativeReduction: 167 },
+  { id: "enhanced-recycling", name: "Enhanced Recycling Program", costPerTonne: -12, reduction: 28, source: "NREL", selected: true, annualFinancialSavings: 6400, implementationCost: 12000, paybackPeriod: 1.88, category: "waste", assumptions: "", cumulativeReduction: 195 },
+  { id: "renewable-procurement", name: "Renewable Energy PPA", costPerTonne: 23, reduction: 180, source: "IRENA", selected: false, annualFinancialSavings: 8500, implementationCost: 42000, paybackPeriod: 4.94, category: "renewable-energy", assumptions: "", cumulativeReduction: 375 },
+  { id: "rooftop-solar", name: "Rooftop Solar (200 kW)", costPerTonne: 28, reduction: 220, source: "IEA", selected: false, annualFinancialSavings: 28600, implementationCost: 280000, paybackPeriod: 9.79, category: "renewable-energy", assumptions: "", cumulativeReduction: 595 },
+  { id: "ev-fleet", name: "Fleet Electrification (10 vehicles)", costPerTonne: 45, reduction: 153, source: "IRENA", selected: false, annualFinancialSavings: 18900, implementationCost: 450000, paybackPeriod: 23.81, category: "transport", assumptions: "", cumulativeReduction: 748 },
+  { id: "hvac-optimization", name: "HVAC Smart Controls", costPerTonne: 62, reduction: 97, source: "NREL", selected: false, annualFinancialSavings: 15800, implementationCost: 62000, paybackPeriod: 3.92, category: "energy-efficiency", assumptions: "", cumulativeReduction: 845 },
+  { id: "battery-storage", name: "Battery Energy Storage (500 kWh)", costPerTonne: 85, reduction: 64, source: "IEA", selected: false, annualFinancialSavings: 11200, implementationCost: 320000, paybackPeriod: 28.57, category: "renewable-energy", assumptions: "", cumulativeReduction: 909 },
+  { id: "heat-pump", name: "Heat Pump Installation", costPerTonne: 95, reduction: 76, source: "IEA", selected: false, annualFinancialSavings: 12400, implementationCost: 180000, paybackPeriod: 14.52, category: "energy-efficiency", assumptions: "", cumulativeReduction: 985 },
+  { id: "green-hydrogen", name: "Green Hydrogen Pilot", costPerTonne: 120, reduction: 42, source: "IRENA", selected: false, annualFinancialSavings: 3200, implementationCost: 250000, paybackPeriod: 78.13, category: "renewable-energy", assumptions: "", cumulativeReduction: 1027 },
+  { id: "carbon-capture", name: "Carbon Capture Pilot", costPerTonne: 180, reduction: 120, source: "McKinsey", selected: false, annualFinancialSavings: 1800, implementationCost: 500000, paybackPeriod: 277.78, category: "carbon-removal", assumptions: "", cumulativeReduction: 1147 },
+];
+
 export function MACCCurve() {
-  const [measures, setMeasures] = useState(MACC_MEASURES);
+  const [measures, setMeasures] = useState<MACCMeasure[]>(FALLBACK_MEASURES);
+
+  useEffect(() => {
+    fetch("/api/macc")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.measures) setMeasures(data.measures);
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleMeasure = (id: string) => {
     setMeasures((prev) =>
