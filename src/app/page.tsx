@@ -1,338 +1,478 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   TreeEvergreen,
   Users,
   ShieldCheck,
-  ArrowUpRight,
-  ArrowDownRight,
-  Warning,
-  CheckCircle,
-  Clock,
+  ArrowRight,
+  Sparkle,
+  ChartLineUp,
+  SealCheck,
+  Lightning,
+  Globe,
+  MagnifyingGlass,
+  FileText,
+  RocketLaunch,
 } from "@phosphor-icons/react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { ESGScoreCard } from "@/components/shared/ESGScoreCard";
-import { AIInsight } from "@/components/shared/AIInsight";
 
-const STAGGER = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
+const prefersReduced = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
+const isReduced = prefersReduced;
+
+const fadeUp = (delay = 0) => ({
+  initial: isReduced ? {} : { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.3 },
+  transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] },
+});
+
+const stagger = {
+  initial: isReduced ? {} : { opacity: 0 },
+  whileInView: { opacity: 1 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { staggerChildren: 0.08 },
 };
 
-const FADE_UP = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } },
-};
+// ── Navigation ───────────────────────────────────────
 
-const RECENT_ACTIONS = [
-  { name: "Priya Nair", action: "Bike Commute", xp: "+10 XP", time: "2h ago", carbon: "2.6 kg" },
-  { name: "Arjun Mehta", action: "Tree Planting", xp: "+20 XP", time: "4h ago", carbon: "21.0 kg" },
-  { name: "Sneha Kapoor", action: "Recycling", xp: "+6 XP", time: "5h ago", carbon: "1.2 kg" },
-  { name: "Ravi Teja", action: "Public Transport", xp: "+8 XP", time: "6h ago", carbon: "1.8 kg" },
-  { name: "Meera Iyer", action: "Work From Home", xp: "+5 XP", time: "8h ago", carbon: "1.5 kg" },
-];
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-const ALERTS = [
-  { type: "warning" as const, message: "Fleet diesel consumption spiked 512% MoM — investigate fuel records", time: "1h ago" },
-  { type: "success" as const, message: "Monthly waste diversion rate hit 74% — on track for Q3 target", time: "3h ago" },
-  { type: "info" as const, message: "3 new CSRD disclosure gaps identified in Governance module", time: "5h ago" },
-];
-
-export default function ExecutiveDashboard() {
   return (
-    <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
-        {/* Header — asymmetric layout */}
-        <div className="mb-10 grid grid-cols-1 items-end gap-6 lg:grid-cols-[1fr_auto]">
-          <div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-[13px] font-medium text-slate-400"
-            >
-              Executive Overview
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl"
-            >
-              GreenForge Industries
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mt-2 text-sm text-slate-500"
-            >
-              Sustainability snapshot — July 2026
-            </motion.p>
-          </div>
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b px-6 text-sm transition-colors lg:px-10 ${
+        scrolled
+          ? "border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-zinc-800/60 dark:bg-zinc-950/80"
+          : "border-transparent bg-transparent"
+      }`}
+    >
+      <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900 dark:text-zinc-100">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
+          E
+        </span>
+        <span>EcoSphere</span>
+      </Link>
+      <div className="hidden items-center gap-8 text-slate-600 dark:text-zinc-400 md:flex">
+        <Link href="/dashboard" className="transition-colors hover:text-emerald-600">Dashboard</Link>
+        <Link href="/environment" className="transition-colors hover:text-emerald-600">Environment</Link>
+        <Link href="/social" className="transition-colors hover:text-emerald-600">Social</Link>
+        <Link href="/governance" className="transition-colors hover:text-emerald-600">Governance</Link>
+      </div>
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-all hover:bg-emerald-700 active:scale-[0.97]"
+      >
+        Launch App
+        <ArrowRight className="h-3.5 w-3.5" />
+      </Link>
+    </nav>
+  );
+}
 
-          {/* Period selector */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="flex gap-1 rounded-xl bg-slate-100/80 p-1"
-          >
-            {["Week", "Month", "Quarter", "Year"].map((p, i) => (
-              <button
-                key={p}
-                className={`rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                  i === 1
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
+// ── Hero ─────────────────────────────────────────────
+
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden pt-28 md:pt-32">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          {/* Left */}
+          <motion.div {...fadeUp(0)}>
+            <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-none tracking-tighter text-slate-900 dark:text-zinc-100">
+              Measure. Engage.
+              <br />
+              <span className="text-emerald-600 dark:text-emerald-400">Prove.</span>
+            </h1>
+            <p className="mt-5 max-w-[48ch] text-[17px] leading-relaxed text-slate-600 dark:text-zinc-400">
+              From carbon measurement to employee engagement to audit-ready compliance reports. One unified platform for your entire ESG program.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-[15px] font-medium text-white transition-all hover:bg-emerald-700 active:scale-[0.97]"
               >
-                {p}
-              </button>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* AI Insight */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mb-8"
-        >
-          <AIInsight
-            type="info"
-            title="AI Recommendation"
-            message="Switching to solar panels would reduce your Scope 2 emissions by 22% and save $48,200 annually. The payback period is 3.2 years based on your current electricity spend."
-          />
-        </motion.div>
-
-        {/* Overall score — large hero card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
-          className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]"
-        >
-          {/* Main score */}
-          <div className="rounded-[2rem] border border-slate-200/50 bg-white p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[13px] font-medium text-slate-400">Overall ESG Score</p>
-                <div className="mt-3 flex items-baseline gap-3">
-                  <span className="text-6xl font-bold tracking-tighter text-slate-900">
-                    82
-                  </span>
-                  <span className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-4 w-4" weight="bold" />
-                    +4.2%
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] text-slate-400">
-                  Last updated 12 minutes ago
-                </p>
-              </div>
-
-              {/* Mini sparkline placeholder */}
-              <div className="flex h-16 w-32 items-end gap-1">
-                {[40, 55, 45, 60, 58, 72, 68, 78, 75, 82].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ delay: 0.5 + i * 0.05, type: "spring", stiffness: 120 }}
-                    className="flex-1 rounded-sm bg-emerald-200/60"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Quick stats */}
-          <div className="flex flex-col gap-4">
-            {[
-              { label: "Total Carbon Saved", value: "142.8 tCO₂e", change: "+12%", positive: true },
-              { label: "Active Employees", value: "487", change: "+23", positive: true },
-              { label: "Actions This Month", value: "1,284", change: "+18%", positive: true },
-              { label: "Compliance Score", value: "78%", change: "-2%", positive: false },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.08 }}
-                className="flex items-center justify-between rounded-2xl border border-slate-200/50 bg-white px-5 py-3.5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+                Launch Dashboard
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/governance"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-medium text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 active:scale-[0.97] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
               >
-                <div>
-                  <p className="text-[11px] font-medium text-slate-400">{stat.label}</p>
-                  <p className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
-                    {stat.value}
-                  </p>
-                </div>
-                <span
-                  className={`flex items-center gap-0.5 text-xs font-semibold ${
-                    stat.positive ? "text-emerald-600" : "text-rose-600"
-                  }`}
-                >
-                  {stat.positive ? (
-                    <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
-                  ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5" weight="bold" />
-                  )}
-                  {stat.change}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Pillar scores */}
-        <motion.div
-          variants={STAGGER}
-          initial="hidden"
-          animate="show"
-          className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <motion.div
-            variants={FADE_UP}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
-          >
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-                <TreeEvergreen className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Environmental</p>
-                <p className="text-[11px] text-slate-400">Scope 1 + 2 + 3</p>
-              </div>
-            </div>
-            <ESGScoreCard label="Score" score={79} change={5.3} color="emerald" />
-          </motion.div>
-
-          <motion.div
-            variants={FADE_UP}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
-          >
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                <Users className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Social</p>
-                <p className="text-[11px] text-slate-400">Employee engagement</p>
-              </div>
-            </div>
-            <ESGScoreCard label="Score" score={88} change={3.1} color="blue" />
-          </motion.div>
-
-          <motion.div
-            variants={FADE_UP}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
-          >
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
-                <ShieldCheck className="h-5 w-5 text-violet-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Governance</p>
-                <p className="text-[11px] text-slate-400">Compliance & evidence</p>
-              </div>
-            </div>
-            <ESGScoreCard label="Score" score={78} change={-1.8} color="violet" />
-          </motion.div>
-        </motion.div>
-
-        {/* Bottom section — asymmetric 2-col */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[5fr_3fr]">
-          {/* Recent actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-800">Recent Actions</h2>
-              <span className="text-[11px] text-slate-400">Last 24h</span>
-            </div>
-            <div className="space-y-3">
-              {RECENT_ACTIONS.map((a, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + i * 0.06 }}
-                  className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors hover:bg-slate-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-[12px] font-semibold text-slate-600">
-                      {a.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-medium text-slate-800">{a.name}</p>
-                      <p className="text-[11px] text-slate-400">{a.action}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-right">
-                    <div>
-                      <p className="text-[13px] font-semibold text-emerald-600">{a.xp}</p>
-                      <p className="text-[11px] text-slate-400">{a.carbon} CO₂e</p>
-                    </div>
-                    <span className="text-[11px] text-slate-300">{a.time}</span>
-                  </div>
-                </motion.div>
-              ))}
+                View Reports
+              </Link>
             </div>
           </motion.div>
-
-          {/* Alerts */}
+          {/* Right */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            initial={isReduced ? {} : { opacity: 0, x: 40 }}
+            animate={isReduced ? {} : { opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="relative"
           >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-800">Alerts</h2>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-50 text-[11px] font-semibold text-rose-600">
-                {ALERTS.length}
-              </span>
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-800">
+              <img
+                src="https://picsum.photos/seed/ecosphere-hero/800/600"
+                alt="Sustainable office and nature"
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
             </div>
-            <div className="space-y-3">
-              {ALERTS.map((alert, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + i * 0.06 }}
-                  className="flex gap-3 rounded-xl px-4 py-3"
-                >
-                  <div className="mt-0.5 flex-shrink-0">
-                    {alert.type === "warning" && (
-                      <Warning className="h-4 w-4 text-amber-500" weight="fill" />
-                    )}
-                    {alert.type === "success" && (
-                      <CheckCircle className="h-4 w-4 text-emerald-500" weight="fill" />
-                    )}
-                    {alert.type === "info" && (
-                      <Clock className="h-4 w-4 text-blue-500" weight="fill" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] leading-relaxed text-slate-700">
-                      {alert.message}
-                    </p>
-                    <p className="mt-1 text-[11px] text-slate-400">{alert.time}</p>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
+              <SealCheck className="h-4 w-4 text-emerald-500" weight="fill" />
+              ESG Score: 82
+            </div>
+            <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
+              <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
+              AI Active
             </div>
           </motion.div>
         </div>
       </div>
-    </DashboardLayout>
+    </section>
+  );
+}
+
+// ── Trusted By ───────────────────────────────────────
+
+function TrustedBySection() {
+  const logos = [
+    { name: "SustainCorp", color: "#059669" },
+    { name: "GreenGrid", color: "#3b82f6" },
+    { name: "EcoFirst", color: "#8b5cf6" },
+    { name: "CarbonZero", color: "#0891b2" },
+    { name: "FutureFuel", color: "#d97706" },
+  ];
+
+  return (
+    <section className="py-20 md:py-24">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <p className="mb-10 text-center text-[13px] font-medium uppercase tracking-[0.15em] text-slate-400 dark:text-zinc-500">
+          Trusted by
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
+          {logos.map((l) => (
+            <div key={l.name} className="flex items-center gap-2.5">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                className="flex-shrink-0"
+              >
+                <rect width="32" height="32" rx="8" fill={l.color} />
+                <text
+                  x="16"
+                  y="20"
+                  textAnchor="middle"
+                  fill="white"
+                  fontSize="14"
+                  fontWeight="700"
+                  fontFamily="system-ui"
+                >
+                  {l.name.charAt(0)}
+                </text>
+              </svg>
+              <span className="text-[15px] font-semibold text-slate-700 dark:text-zinc-300">
+                {l.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Three Pillars ────────────────────────────────────
+
+const PILLARS = [
+  {
+    id: "environmental",
+    icon: TreeEvergreen,
+    title: "Environmental",
+    desc: "Upload utility bills, fleet records, and invoices. AI extracts carbon data, maps to Scope 1/2/3, and builds your full emissions baseline.",
+    color: "emerald",
+    features: ["AI document extraction", "Scope 1/2/3 breakdown", "MACC abatement curve", "SBTi trajectory tracking"],
+    href: "/environment",
+  },
+  {
+    id: "social",
+    icon: Users,
+    title: "Social",
+    desc: "Empower employees with 10 sustainability actions. AI validates evidence, awards XP, and badges drive engagement.",
+    color: "blue",
+    features: ["10 action types", "AI evidence validation", "XP and badge system", "Department leaderboards"],
+    href: "/social",
+  },
+  {
+    id: "governance",
+    icon: ShieldCheck,
+    title: "Governance",
+    desc: "Tamper-proof evidence registry with SHA-256 hash chain. Generate GRI/CSRD compliant reports with one click.",
+    color: "violet",
+    features: ["SHA-256 evidence chain", "GRI and CSRD compliance", "Board-ready PDF reports", "Anomaly spike detection"],
+    href: "/governance",
+  },
+];
+
+function PillarsSection() {
+  return (
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <motion.div {...fadeUp(0)} className="mb-14 text-center">
+          <p className="text-[11px] font-mono font-medium uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400">
+            Three pillars
+          </p>
+          <h2 className="mt-3 text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
+            Environmental. Social. Governance.
+          </h2>
+          <p className="mx-auto mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
+            Three modules, one shared data model. Every upload, action, and record feeds every pillar.
+          </p>
+        </motion.div>
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr_1fr]">
+          {PILLARS.map((p, i) => (
+            <Link
+              key={p.id}
+              href={p.href}
+              className={`group relative overflow-hidden rounded-2xl border border-slate-200/60 p-8 transition-all hover:shadow-lg dark:border-zinc-800/60 ${
+                i === 0
+                  ? "bg-emerald-50 dark:bg-emerald-950/20"
+                  : i === 1
+                    ? "bg-blue-50/60 dark:bg-blue-950/20"
+                    : "bg-violet-50/60 dark:bg-violet-950/20"
+              }`}
+            >
+              <motion.div {...fadeUp(0.1 * i)} className="h-full">
+                <div
+                  className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl ${
+                    i === 0
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                      : i === 1
+                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+                        : "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300"
+                  }`}
+                >
+                  <p.icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-zinc-100">
+                  {p.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+                  {p.desc}
+                </p>
+                <ul className="mt-5 space-y-2">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[13px] text-slate-500 dark:text-zinc-400">
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          i === 0
+                            ? "bg-emerald-500"
+                            : i === 1
+                              ? "bg-blue-500"
+                              : "bg-violet-500"
+                        }`}
+                      />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 flex items-center gap-1 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
+                  Open {p.title}
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </motion.div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── AI Features ──────────────────────────────────────
+
+function AIFeaturesSection() {
+  const features = [
+    { icon: MagnifyingGlass, title: "Smart Document Extraction", desc: "Upload PDFs, CSVs, or images. AI extracts vendor, amount, date, and category with confidence scoring." },
+    { icon: Sparkle, title: "Action Validation Engine", desc: "Employees submit evidence for sustainable actions. AI validates authenticity and estimates carbon impact in real time." },
+    { icon: ChartLineUp, title: "Anomaly Detection", desc: "Month-over-month spikes above 30% are flagged automatically with AI-generated explanations." },
+    { icon: FileText, title: "Automated Report Generation", desc: "Generate GRI and CSRD compliant board reports with cited evidence from the tamper-proof registry." },
+  ];
+
+  return (
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <motion.div {...fadeUp(0)}>
+          <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
+            AI that does the work
+          </h2>
+          <p className="mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
+            Not a chatbot. An agent that extracts, validates, detects, and reports across every pillar.
+          </p>
+        </motion.div>
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={isReduced ? {} : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 * i, ease: [0.16, 1, 0.3, 1] }}
+              className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-colors hover:border-slate-300/60 dark:border-zinc-800/60 dark:bg-zinc-900 dark:hover:border-zinc-700/60"
+            >
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-zinc-100">{f.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-zinc-400">{f.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── How It Works ─────────────────────────────────────
+
+const STEPS = [
+  { icon: RocketLaunch, title: "Upload Data", desc: "Utility bills, fleet logs, invoices. Drag and drop. AI extracts everything." },
+  { icon: Globe, title: "Measure Impact", desc: "Real-time Scope 1/2/3 breakdown, MACC curve, and employee engagement metrics." },
+  { icon: ShieldCheck, title: "Prove Compliance", desc: "Tamper-proof evidence chain. GRI/CSRD reports with one click." },
+];
+
+function HowItWorksSection() {
+  return (
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <motion.div {...fadeUp(0)} className="mb-14 text-center">
+          <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
+            From data to report in minutes
+          </h2>
+          <p className="mx-auto mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
+            Three steps. No spreadsheets. No consultants.
+          </p>
+        </motion.div>
+        <div className="grid gap-8 md:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={isReduced ? {} : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 * i, ease: [0.16, 1, 0.3, 1] }}
+              className="relative text-center"
+            >
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                <s.icon className="h-6 w-6" />
+              </div>
+              <div className="absolute left-1/2 top-7 hidden md:block" style={{ width: "calc(100% - 3rem)", transform: "translateX(50%)" }}>
+                {i < STEPS.length - 1 && (
+                  <div className="h-px bg-slate-200 dark:bg-zinc-700" />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-zinc-100">{s.title}</h3>
+              <p className="mt-2 text-sm text-slate-500 dark:text-zinc-400">{s.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── CTA ──────────────────────────────────────────────
+
+function CTASection() {
+  return (
+    <section className="py-24 md:py-32">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <motion.div
+          initial={isReduced ? {} : { opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden rounded-3xl bg-emerald-600 px-8 py-16 text-center text-white md:px-16 md:py-24"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.12),transparent_60%)] pointer-events-none" />
+          <h2 className="relative text-[clamp(1.5rem,4vw,2.75rem)] font-bold leading-tight tracking-tight">
+            Ready to unify your ESG program?
+          </h2>
+          <p className="relative mx-auto mt-4 max-w-[50ch] text-[17px] text-emerald-100">
+            Upload a utility bill and see your full environmental baseline in under 60 seconds. No signup required for the demo.
+          </p>
+          <div className="relative mt-8 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-[15px] font-semibold text-emerald-700 transition-all hover:bg-emerald-50 active:scale-[0.97]"
+            >
+              Launch Demo
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/environment"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-7 py-3 text-[15px] font-medium text-white transition-all hover:bg-white/10 active:scale-[0.97]"
+            >
+              View Environmental Dashboard
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ───────────────────────────────────────────
+
+function FooterSection() {
+  return (
+    <footer className="border-t border-slate-200 dark:border-zinc-800">
+      <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-slate-500 dark:text-zinc-500 lg:flex-row lg:px-10">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">
+            E
+          </span>
+          <span className="font-medium text-slate-700 dark:text-zinc-300">EcoSphere</span>
+        </div>
+        <p className="text-center text-[13px]">
+          Built for Odoo Hackathon 2026. ESG management, unified.
+        </p>
+        <div className="flex gap-6 text-[13px]">
+          <Link href="/dashboard" className="transition-colors hover:text-emerald-600">Dashboard</Link>
+          <Link href="/environment" className="transition-colors hover:text-emerald-600">Environment</Link>
+          <Link href="/social" className="transition-colors hover:text-emerald-600">Social</Link>
+          <Link href="/governance" className="transition-colors hover:text-emerald-600">Governance</Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-[100dvh] bg-white text-slate-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <Nav />
+      <main>
+        <HeroSection />
+        <TrustedBySection />
+        <PillarsSection />
+        <AIFeaturesSection />
+        <HowItWorksSection />
+        <CTASection />
+      </main>
+      <FooterSection />
+    </div>
   );
 }
