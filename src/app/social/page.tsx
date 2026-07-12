@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
@@ -18,7 +18,7 @@ const ACTION_LIST = Object.entries(ACTION_CATALOG).map(([key, val]) => ({
   ...val,
 }));
 
-const LEADERBOARD = [
+const FALLBACK_LEADERBOARD = [
   { rank: 1, name: "Priya Nair", dept: "Engineering", carbon: 42.8, xp: 1240, badge: "Tree Hugger" },
   { rank: 2, name: "Arjun Mehta", dept: "Operations", carbon: 38.2, xp: 1180, badge: "Green Commuter" },
   { rank: 3, name: "Sneha Kapoor", dept: "Marketing", carbon: 31.5, xp: 980, badge: "Recycling Pro" },
@@ -29,13 +29,20 @@ const LEADERBOARD = [
   { rank: 8, name: "Karthik Menon", dept: "Operations", carbon: 15.4, xp: 470, badge: null },
 ];
 
-const BADGES = [
+const FALLBACK_BADGES = [
   { name: "Green Commuter", icon: "🚲", desc: "50 bike commutes logged", earned: true, progress: 100 },
   { name: "Tree Hugger", icon: "🌳", desc: "Plant 10 trees", earned: true, progress: 100 },
   { name: "Recycling Pro", icon: "♻️", desc: "100 recycling actions", earned: true, progress: 100 },
   { name: "Energy Saver", icon: "💡", desc: "25 energy suggestions", earned: false, progress: 68 },
   { name: "CSR Champion", icon: "🤝", desc: "5 volunteering sessions", earned: false, progress: 40 },
   { name: "Carbon Crusher", icon: "🏔️", desc: "Save 100 kg CO₂e", earned: false, progress: 82 },
+];
+
+const FALLBACK_STATS = [
+  { label: "Total Actions", value: "1,284", icon: Target, color: "text-emerald-500" },
+  { label: "Active Participants", value: "487", icon: Users, color: "text-blue-500" },
+  { label: "Carbon Saved", value: "142.8 tCO₂e", icon: Flame, color: "text-amber-500" },
+  { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
 ];
 
 const STAGGER = {
@@ -48,8 +55,43 @@ const FADE_UP = {
   show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } },
 };
 
+interface LeaderboardEntry {
+  rank: number; name: string; dept: string; carbon: number; xp: number; badge: string | null;
+}
+
 export default function SocialPage() {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(FALLBACK_LEADERBOARD);
+  const [badges] = useState(FALLBACK_BADGES);
+  const [stats, setStats] = useState(FALLBACK_STATS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/actions?leaderboard=true")
+      .then((r) => r.json())
+      .then((data: { departmentName: string; totalCarbonSaved: number; totalXP: number; actionCount: number }[]) => {
+        setLeaderboard(
+          data.map((d, i) => ({
+            rank: i + 1,
+            name: d.departmentName,
+            dept: d.departmentName,
+            carbon: d.totalCarbonSaved,
+            xp: d.totalXP,
+            badge: null,
+          }))
+        );
+        const totalCarbon = data.reduce((s, d) => s + d.totalCarbonSaved, 0);
+        const totalActions = data.reduce((s, d) => s + d.actionCount, 0);
+        setStats([
+          { label: "Total Actions", value: totalActions.toLocaleString(), icon: Target, color: "text-emerald-500" },
+          { label: "Active Participants", value: `${data.length} depts`, icon: Users, color: "text-blue-500" },
+          { label: "Carbon Saved", value: totalCarbon >= 1000 ? `${(totalCarbon / 1000).toFixed(1)} tCO₂e` : `${totalCarbon.toFixed(1)} kg CO₂e`, icon: Flame, color: "text-amber-500" },
+          { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
+        ]);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <DashboardLayout>
@@ -125,12 +167,7 @@ export default function SocialPage() {
           animate="show"
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
-          {[
-            { label: "Total Actions", value: "1,284", icon: Target, color: "text-emerald-500" },
-            { label: "Active Participants", value: "487", icon: Users, color: "text-blue-500" },
-            { label: "Carbon Saved", value: "142.8 tCO₂e", icon: Flame, color: "text-amber-500" },
-            { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
-          ].map((stat) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div
@@ -235,8 +272,11 @@ export default function SocialPage() {
                 </h2>
                 <span className="text-[11px] text-slate-400">This month</span>
               </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-10 text-sm text-slate-400">Loading leaderboard…</div>
+              ) : (
               <div className="space-y-1">
-                {LEADERBOARD.map((person, i) => (
+                {leaderboard.map((person, i) => (
                   <motion.div
                     key={person.rank}
                     initial={{ opacity: 0, x: -8 }}
@@ -282,6 +322,7 @@ export default function SocialPage() {
                   </motion.div>
                 ))}
               </div>
+            )}
             </motion.div>
           </div>
 
@@ -297,11 +338,11 @@ export default function SocialPage() {
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-800">Badges</h2>
                 <span className="rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">
-                  3 of 6 earned
+                  {badges.filter((b) => b.earned).length} of {badges.length} earned
                 </span>
               </div>
               <div className="space-y-3">
-                {BADGES.map((badge, i) => (
+                {badges.map((badge, i) => (
                   <motion.div
                     key={badge.name}
                     initial={{ opacity: 0, x: 8 }}

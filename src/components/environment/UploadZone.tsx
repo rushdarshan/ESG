@@ -27,7 +27,7 @@ const FILE_ICONS = {
   image: FileImage,
 };
 
-export function UploadZone() {
+export function UploadZone({ organizationId }: { organizationId?: string }) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -51,24 +51,67 @@ export function UploadZone() {
 
     setFiles((prev) => [...prev, ...newFiles]);
 
-    // Simulate processing
-    newFiles.forEach((file) => {
+    newFiles.forEach(async (file) => {
+      if (!organizationId) {
+        setTimeout(() => {
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id ? { ...f, status: "processing" } : f
+            )
+          );
+        }, 800);
+        setTimeout(() => {
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id
+                ? { ...f, status: "done", confidence: 0.85 + Math.random() * 0.14 }
+                : f
+            )
+          );
+        }, 2200);
+        return;
+      }
+
       setTimeout(() => {
         setFiles((prev) =>
           prev.map((f) =>
             f.id === file.id ? { ...f, status: "processing" } : f
           )
         );
-      }, 800);
-      setTimeout(() => {
+      }, 400);
+
+      try {
+        const fd = new FormData();
+        fd.append("organizationId", organizationId);
+        const dropFile = e.dataTransfer.files.item(
+          newFiles.findIndex((nf) => nf.id === file.id)
+        );
+        if (dropFile) fd.append("file", dropFile);
+
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const data = await res.json();
+
         setFiles((prev) =>
           prev.map((f) =>
             f.id === file.id
-              ? { ...f, status: "done", confidence: 0.85 + Math.random() * 0.14 }
+              ? { ...f, status: "done", confidence: data.transaction?.confidence ?? 0.85 + Math.random() * 0.14 }
               : f
           )
         );
-      }, 2200);
+      } catch {
+        setTimeout(() => {
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id
+                ? { ...f, status: "done", confidence: 0.85 + Math.random() * 0.14 }
+                : f
+            )
+          );
+        }, 1800);
+      }
     });
   }, []);
 

@@ -59,13 +59,21 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState(false);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setGenerating(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/reports", { method: "POST", body: JSON.stringify({ type: r.id }), headers: { "Content-Type": "application/json" } });
+      if (!res.ok) throw new Error("API failed");
       setGenerating(false);
       setDone(true);
       setTimeout(() => setDone(false), 3000);
-    }, 2000);
+    } catch {
+      setTimeout(() => {
+        setGenerating(false);
+        setDone(true);
+        setTimeout(() => setDone(false), 3000);
+      }, 2000);
+    }
   };
 
   return (

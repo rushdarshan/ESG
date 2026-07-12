@@ -6,15 +6,25 @@ import type { ActionTypeDef } from "@/lib/actions";
 
 interface Props {
   onSubmit: (actionType: string, evidence: { type: string; data: string }) => void;
+  employeeId: string;
 }
 
-export function ActionCatalog({ onSubmit }: Props) {
+export function ActionCatalog({ onSubmit, employeeId }: Props) {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
   const [evidenceData, setEvidenceData] = useState("");
 
   const handleSubmit = () => {
     if (!selectedAction || !selectedEvidence) return;
+    fetch("/api/actions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        actionType: selectedAction,
+        employeeId,
+        evidence: { type: selectedEvidence, data: evidenceData },
+      }),
+    }).catch(console.error);
     onSubmit(selectedAction, { type: selectedEvidence, data: evidenceData });
     setSelectedAction(null);
     setSelectedEvidence(null);

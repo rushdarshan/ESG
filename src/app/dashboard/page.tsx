@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -73,8 +74,85 @@ const RECENT_ACTIONS = [
 ];
 
 export default function DashboardPage() {
+  const [modules, setModules] = useState(MODULES);
+  const [recentActions, setRecentActions] = useState(RECENT_ACTIONS);
+  const [summaryStats, setSummaryStats] = useState([
+    { label: "Carbon Footprint", value: "342 tCO₂e", icon: Lightning, color: "text-amber-500", change: "-6.2%" },
+    { label: "Water Usage", value: "45,000 L", icon: Drop, color: "text-blue-500", change: "+1.3%" },
+    { label: "Employee Actions", value: "1,284", icon: Target, color: "text-emerald-500", change: "+18%" },
+    { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500", change: "+12%" },
+  ]);
+  const [complianceFrameworks, setComplianceFrameworks] = useState([
+    { label: "GRI Standards", score: 70, color: "bg-emerald-500" },
+    { label: "CSRD / ESRS", score: 72, color: "bg-blue-500" },
+  ]);
+  const [complianceGaps, setComplianceGaps] = useState([
+    { label: "GRI 305-5 — Emissions reduction", status: "gap" },
+    { label: "GRI 403-2 — Workplace injury rates", status: "gap" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.allSettled([
+      fetch("/api/evidence?type=summary")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.modules) setModules(d.modules);
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+      fetch("/api/actions")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.actions) setRecentActions(d.actions);
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+      fetch("/api/reports?type=compliance")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.frameworks) setComplianceFrameworks(d.frameworks);
+          if (d.gaps) setComplianceGaps(d.gaps);
+        }),
+      fetch("/api/macc")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+    ]).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <DashboardLayout>
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
+        </div>
+      )}
       <div className="mx-auto max-w-[1400px]">
         {/* Header */}
         <div className="mb-8">
@@ -124,12 +202,7 @@ export default function DashboardPage() {
           animate="show"
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
-          {[
-            { label: "Carbon Footprint", value: "342 tCO₂e", icon: Lightning, color: "text-amber-500", change: "-6.2%" },
-            { label: "Water Usage", value: "45,000 L", icon: Drop, color: "text-blue-500", change: "+1.3%" },
-            { label: "Employee Actions", value: "1,284", icon: Target, color: "text-emerald-500", change: "+18%" },
-            { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500", change: "+12%" },
-          ].map((stat) => {
+          {summaryStats.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div
@@ -160,7 +233,7 @@ export default function DashboardPage() {
           animate="show"
           className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3"
         >
-          {MODULES.map((mod) => {
+          {modules.map((mod) => {
             const Icon = mod.icon;
             return (
               <motion.div key={mod.title} variants={FADE_UP}>
@@ -219,7 +292,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-1">
-              {RECENT_ACTIONS.map((a, i) => (
+              {recentActions.map((a, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -8 }}
@@ -264,10 +337,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {[
-                { label: "GRI Standards", score: 70, color: "bg-emerald-500" },
-                { label: "CSRD / ESRS", score: 72, color: "bg-blue-500" },
-              ].map((fw, i) => (
+              {complianceFrameworks.map((fw, i) => (
                 <motion.div
                   key={fw.label}
                   initial={{ opacity: 0 }}
@@ -290,10 +360,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <div className="mt-5 space-y-2">
-              {[
-                { label: "GRI 305-5 — Emissions reduction", status: "gap" },
-                { label: "GRI 403-2 — Workplace injury rates", status: "gap" },
-              ].map((gap, i) => (
+              {complianceGaps.map((gap, i) => (
                 <div key={i} className="flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2">
                   <Warning className="h-3.5 w-3.5 text-rose-500" weight="fill" />
                   <span className="text-[11px] text-rose-700">{gap.label}</span>
