@@ -53,6 +53,7 @@ model Employee {
   complianceIssues        ComplianceIssue[]
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
+  Notification            Notification[]
 
   @@index([departmentId])
   @@index([organizationId])
@@ -243,6 +244,24 @@ model ChallengeParticipation {
   @@index([employeeId])
 }
 
+// ─── Notifications ─────────────────────────────────────────
+
+model Notification {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  title      String
+  message    String
+  type       String   @default("info") // info / warning / success
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  Audit      Audit?   @relation(fields: [auditId], references: [id])
+  auditId    String?
+
+  @@index([employeeId])
+  @@index([read])
+}
+
 // ─── Compliance: Rewards ───────────────────────────────────
 
 model Reward {
@@ -270,6 +289,7 @@ model Audit {
   updatedAt      DateTime     @updatedAt
 
   complianceIssues ComplianceIssue[]
+  notifications    Notification[]
 
   @@index([organizationId])
 }
