@@ -45,14 +45,14 @@ export default function EnvironmentPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         {/* Header */}
         <div className="mb-8 grid grid-cols-1 items-end gap-6 lg:grid-cols-[1fr_auto]">
           <div>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-[13px] font-medium text-slate-400"
+              className="app-page-kicker"
             >
               Environmental Module
             </motion.p>
@@ -60,7 +60,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl"
+              className="mt-2"
             >
               Carbon Footprint
             </motion.h1>
@@ -68,7 +68,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="mt-2 text-sm text-slate-500"
+              className="app-page-copy"
             >
               Measure Scope 1, 2, and 3 emissions with AI-extracted data
             </motion.p>
@@ -94,7 +94,7 @@ export default function EnvironmentPage() {
           variants={STAGGER}
           initial="hidden"
           animate="show"
-          className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
+          className="app-stat-grid mb-8"
         >
           {QUICK_STATS.map((stat) => {
             const Icon = stat.icon;
@@ -102,7 +102,7 @@ export default function EnvironmentPage() {
               <motion.div
                 key={stat.label}
                 variants={FADE_UP}
-                className="rounded-2xl border border-slate-200/50 bg-white p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+                className="app-stat"
               >
                 <div className="flex items-center justify-between">
                   <Icon className={`h-5 w-5 ${stat.color}`} />
@@ -121,7 +121,7 @@ export default function EnvironmentPage() {
         </motion.div>
 
         {/* Main content — asymmetric layout */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_.85fr]">
           {/* Left column */}
           <div className="space-y-6">
             {/* Upload Zone */}
@@ -129,7 +129,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel border-[#c7dcb5] bg-[#e5efd8] p-6"
             >
               <h2 className="mb-4 text-sm font-semibold text-slate-800">
                 Upload Documents
@@ -142,7 +142,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <h2 className="mb-5 text-sm font-semibold text-slate-800">
                 Scope Breakdown
@@ -158,7 +158,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-800">
@@ -176,7 +176,7 @@ export default function EnvironmentPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <h2 className="mb-4 text-sm font-semibold text-slate-800">
                 Data Provenance

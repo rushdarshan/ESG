@@ -49,9 +49,9 @@ const HISTORY = [
 ];
 
 const COLORS: Record<string, string> = {
-  emerald: "bg-emerald-100 text-emerald-700",
-  blue: "bg-blue-100 text-blue-700",
-  violet: "bg-violet-100 text-violet-700",
+  emerald: "bg-[#dcebc7] text-[#36511f]",
+  blue: "bg-[#dce9f6] text-[#234b74]",
+  violet: "bg-[#e8def4] text-[#5a3479]",
 };
 
 async function downloadReport(type: string) {
@@ -131,7 +131,7 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
 export default function ReportsPage() {
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,8 +139,9 @@ export default function ReportsPage() {
         >
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Reports</h1>
-              <p className="mt-1 text-sm text-slate-500">Generate and download GRI/CSRD compliance reports</p>
+              <p className="app-page-kicker">Reports</p>
+              <h1 className="mt-2">Compliance reports</h1>
+              <p className="app-page-copy mt-2">Generate and download GRI and CSRD reports backed by live evidence.</p>
             </div>
           </div>
 
@@ -158,7 +159,7 @@ export default function ReportsPage() {
 
           <div className="mt-12">
             <h2 className="text-[15px] font-bold text-slate-900">Recent Reports</h2>
-            <div className="mt-4 divide-y divide-slate-100 rounded-2xl border border-slate-200/50 bg-white">
+            <div className="app-panel mt-4 divide-y divide-slate-100">
               {HISTORY.map((h) => (
                 <div key={h.id} className="flex items-center justify-between px-5 py-3.5">
                   <div className="flex items-center gap-3">

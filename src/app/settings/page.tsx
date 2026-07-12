@@ -112,15 +112,16 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
-            <p className="mt-1 text-sm text-slate-500">Organization configuration and preferences</p>
+            <p className="app-page-kicker">Settings</p>
+            <h1 className="mt-2">Organization configuration</h1>
+            <p className="app-page-copy mt-2">Manage local preferences, notifications, and integrations.</p>
           </div>
 
           <AIInsight
@@ -129,12 +130,12 @@ export default function SettingsPage() {
             type="info"
           />
 
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
-              className="rounded-2xl border border-slate-200/50 bg-white"
+              className="app-panel"
             >
               <div className="border-b border-slate-100 px-5 py-4">
                 <p className="text-[13px] font-bold text-slate-900">Organization</p>
@@ -173,7 +174,7 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.15 }}
-              className="rounded-2xl border border-slate-200/50 bg-white"
+              className="app-panel"
             >
               <div className="border-b border-slate-100 px-5 py-4">
                 <p className="text-[13px] font-bold text-slate-900">Notifications</p>
@@ -192,7 +193,7 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
-              className="rounded-2xl border border-slate-200/50 bg-white"
+              className="app-panel"
             >
               <div className="border-b border-slate-100 px-5 py-4">
                 <p className="text-[13px] font-bold text-slate-900">Integrations</p>
@@ -217,7 +218,7 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.25 }}
-              className="rounded-2xl border border-rose-200/50 bg-white"
+              className="app-panel border-rose-200 bg-rose-50/60"
             >
               <div className="border-b border-rose-100 px-5 py-4">
                 <p className="text-[13px] font-bold text-rose-600">Danger Zone</p>
@@ -234,7 +235,7 @@ export default function SettingsPage() {
               </div>
             </motion.div>
 
-            <div className="flex justify-end">
+            <div className="lg:col-span-2 flex justify-end">
               <button
                 onClick={handleSave}
                 className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-slate-800 active:scale-[0.97]"

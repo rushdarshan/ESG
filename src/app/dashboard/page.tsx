@@ -191,13 +191,13 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         {/* Header */}
         <div className="mb-8">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-[13px] font-medium text-slate-400"
+            className="app-page-kicker"
           >
             Executive Overview
           </motion.p>
@@ -205,10 +205,11 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl"
+            className="mt-2"
           >
             ESG Dashboard
           </motion.h1>
+          <p className="app-page-copy">One operating view for carbon performance, employee participation, and disclosure readiness.</p>
         </div>
 
         {/* AI Insight */}
@@ -230,7 +231,7 @@ export default function DashboardPage() {
           variants={STAGGER}
           initial="hidden"
           animate="show"
-          className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
+          className="app-stat-grid mb-8"
         >
           {summaryStats.map((stat) => {
             const Icon = stat.icon;
@@ -238,7 +239,7 @@ export default function DashboardPage() {
               <motion.div
                 key={stat.label}
                 variants={FADE_UP}
-                className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+                className="app-stat"
               >
                 <div className="flex items-center justify-between">
                   <Icon className="h-5 w-5 text-slate-400" />
@@ -269,7 +270,7 @@ export default function DashboardPage() {
               <motion.div key={mod.title} variants={FADE_UP}>
                 <Link
                   href={mod.href}
-                  className="group block rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] active:scale-[0.99]"
+                  className={`group block min-h-full rounded-[1.35rem] border p-6 transition-colors active:scale-[0.99] ${mod.title === "Environment" ? "border-[#c7dcb5] bg-[#e5efd8] hover:bg-[#dcebc7]" : mod.title === "Social" ? "border-[#c9daea] bg-[#e8f0f7] hover:bg-[#dce9f6]" : "border-[#dac9e8] bg-[#efe8f6] hover:bg-[#e8def4]"}`}
                 >
                   <div className="mb-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -308,7 +309,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            className="app-panel p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-800">
@@ -353,7 +354,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            className="app-panel p-6"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-800">
@@ -390,12 +391,17 @@ export default function DashboardPage() {
               ))}
             </div>
             <div className="mt-5 space-y-2">
-              {complianceGaps.map((gap, i) => (
+              {complianceGaps.slice(0, 3).map((gap, i) => (
                 <div key={i} className="flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2">
                   <Warning className="h-3.5 w-3.5 text-rose-500" />
                   <span className="text-[11px] text-rose-700">{gap.label}</span>
                 </div>
               ))}
+              {complianceGaps.length > 3 && (
+                <Link href="/governance" className="block rounded-lg bg-[#f1e8e8] px-3 py-2 text-center text-[11px] font-semibold text-[#8a3d46]">
+                  Review {complianceGaps.length - 3} more disclosure gaps
+                </Link>
+              )}
             </div>
           </motion.div>
         </div>

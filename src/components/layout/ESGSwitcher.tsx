@@ -13,17 +13,17 @@ const COLOR_MAP: Record<string, { bg: string; text: string; activeBg: string }> 
   emerald: {
     bg: "bg-emerald-50",
     text: "text-emerald-700",
-    activeBg: "bg-emerald-600",
+    activeBg: "bg-[#dcebc7]",
   },
   blue: {
     bg: "bg-blue-50",
     text: "text-blue-700",
-    activeBg: "bg-blue-600",
+    activeBg: "bg-[#dce9f6]",
   },
   violet: {
     bg: "bg-violet-50",
     text: "text-violet-700",
-    activeBg: "bg-violet-600",
+    activeBg: "bg-[#e8def4]",
   },
 };
 
@@ -36,7 +36,7 @@ export function ESGSwitcher() {
   );
 
   return (
-    <div className="flex items-center gap-1 rounded-2xl bg-slate-100/80 p-1">
+    <div className="flex items-center gap-1 rounded-full border border-[#d8dfd3] bg-[#edf1e9] p-1">
       {PILLARS.map((pillar) => {
         const isActive = activePillar?.key === pillar.key;
         const colors = COLOR_MAP[pillar.color];
@@ -46,17 +46,17 @@ export function ESGSwitcher() {
             key={pillar.key}
             onClick={() => router.push(`/${pillar.key}`)}
             aria-current={isActive ? "page" : undefined}
-            className={`relative rounded-xl px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
+            className={`relative min-h-9 rounded-full px-4 text-[13px] font-semibold transition-colors duration-200 ${
               isActive
-                ? "text-white"
-                : "text-slate-500 hover:text-slate-700"
+                ? pillar.color === "emerald" ? "text-[#17341f]" : pillar.color === "blue" ? "text-[#173044]" : "text-[#392451]"
+                : "text-[#6a786f] hover:text-[#17341f]"
             }`}
           >
             {isActive && (
               <motion.div
                 layoutId="esg-pillar"
-                className={`absolute inset-0 rounded-xl ${colors.activeBg}`}
-                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                className={`absolute inset-0 rounded-full ${colors.activeBg}`}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               />
             )}
             <span className="relative z-10">{pillar.label}</span>

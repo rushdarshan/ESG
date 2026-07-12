@@ -6,7 +6,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
-  ChartLineUp,
   CheckCircle,
   FileArrowUp,
   FileText,
@@ -193,16 +192,14 @@ function ProblemSection({ reduced }: { reduced: boolean }) {
       <div className="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
         <motion.p
           initial={reduced ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
+          animate={{ opacity: 1, y: 0 }}
           className="text-[12px] font-semibold tracking-[0.11em] text-[#52705a]"
         >
           FROM SPREADSHEET CHASE TO SHARED CERTAINTY
         </motion.p>
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduced ? 0 : 0.08 }}
         >
           <h2 className="max-w-[15ch] text-[clamp(2.25rem,4.4vw,4.4rem)] font-semibold leading-[0.96] tracking-[-0.065em] text-[#17341f]">
@@ -249,8 +246,7 @@ function PillarsSection({ reduced }: { reduced: boolean }) {
               <motion.div
                 key={pillar.kicker}
                 initial={reduced ? false : { opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: reduced ? 0 : index * 0.08, duration: 0.5 }}
                 className={`flex min-h-[410px] flex-col justify-between rounded-[2rem] p-7 sm:p-8 ${pillar.panel}`}
               >
@@ -289,8 +285,7 @@ function CapabilitySection({ reduced }: { reduced: boolean }) {
       <div className="mx-auto max-w-[1280px]">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
+          animate={{ opacity: 1, y: 0 }}
           className="grid gap-6 border-b border-[#cdd8ca] pb-10 lg:grid-cols-[.8fr_1.2fr]"
         >
           <p className="text-[12px] font-semibold tracking-[0.11em] text-[#52705a]">NOT A DASHBOARD FOR ITS OWN SAKE</p>
@@ -304,8 +299,7 @@ function CapabilitySection({ reduced }: { reduced: boolean }) {
             <motion.div
               key={verb}
               initial={reduced ? false : { opacity: 0, x: -14 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.35 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ delay: reduced ? 0 : index * 0.08 }}
               className="grid gap-4 py-7 sm:grid-cols-[.35fr_1fr_auto] sm:items-center"
             >
@@ -325,8 +319,7 @@ function FinalCta({ reduced }: { reduced: boolean }) {
     <section className="bg-[#f4f6ef] px-5 pb-8 sm:px-8 lg:px-12 lg:pb-12">
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 22 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
+        animate={{ opacity: 1, y: 0 }}
         className="mx-auto max-w-[1440px] rounded-[2.5rem] bg-[#153c2a] px-7 py-14 text-[#eff6e9] sm:px-12 sm:py-20 lg:px-16"
       >
         <div className="grid gap-10 lg:grid-cols-[1.25fr_.75fr] lg:items-end">

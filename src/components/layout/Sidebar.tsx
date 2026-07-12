@@ -32,25 +32,25 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-full w-[72px] flex-col items-center border-r border-slate-200/60 bg-white py-6 lg:w-[220px]">
+    <aside className="fixed left-0 top-0 z-40 flex h-full w-[68px] flex-col items-center bg-[#153c2a] py-5 text-[#dce8d9] lg:w-[232px] lg:items-stretch">
       {/* Logo */}
-      <Link href="/dashboard" aria-label="EcoSphere dashboard" className="mb-10 flex items-center gap-2.5 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600">
-          <Leaf className="h-5 w-5 text-white" />
+      <Link href="/dashboard" aria-label="EcoSphere dashboard" className="mb-8 flex items-center gap-3 px-3 lg:px-5">
+        <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#b7dc85]">
+          <Leaf className="h-4.5 w-4.5 text-[#17341f]" />
         </div>
-        <span className="hidden text-[15px] font-semibold tracking-tight text-slate-900 lg:block">
+        <span className="hidden text-[15px] font-semibold tracking-[-0.03em] text-[#f1f6ed] lg:block">
           EcoSphere
         </span>
       </Link>
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-1 px-2">
+      <nav aria-label="Primary navigation" className="flex flex-1 flex-col gap-1 px-2 lg:px-3">
         {NAV_ITEMS.map((item, i) => {
           if ("divider" in item && item.divider) {
             return (
               <div
                 key={`div-${i}`}
-                className="mx-2 my-2 border-t border-slate-100"
+                className="mx-2 my-2 border-t border-[#315a40]"
               />
             );
           }
@@ -67,22 +67,22 @@ export function Sidebar() {
               href={href}
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
-              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+              className={`group relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                  isActive
-                   ? "bg-emerald-50 text-emerald-700"
-                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                   ? "text-[#17341f]"
+                   : "text-[#b9cbbd] hover:bg-[#214c35] hover:text-[#f2f7ef]"
                } active:scale-[0.97]`}
             >
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className="absolute inset-0 rounded-xl bg-emerald-50"
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  className="absolute inset-0 rounded-xl bg-[#b7dc85]"
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                 />
               )}
               <Icon
                 className={`relative z-10 h-5 w-5 flex-shrink-0 ${
-                  isActive ? "text-emerald-600" : ""
+                  isActive ? "text-[#17341f]" : ""
                 }`}
               />
               <span className="relative z-10 hidden lg:block">{label}</span>
@@ -92,16 +92,16 @@ export function Sidebar() {
       </nav>
 
       {/* User avatar */}
-      <div className="mt-auto px-2">
-        <div className="flex items-center gap-2.5 rounded-xl px-3 py-2 transition-colors hover:bg-slate-50">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-[13px] font-semibold text-slate-600">
+      <div className="mt-auto px-2 lg:px-3">
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[#214c35]">
+          <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#2c5a40] text-[12px] font-semibold text-[#edf5e9]">
             DS
           </div>
           <div className="hidden flex-col lg:flex">
-            <span className="text-[13px] font-medium text-slate-800">
+            <span className="text-[13px] font-semibold text-[#edf5e9]">
               Darshan
             </span>
-            <span className="text-[11px] text-slate-400">Sustainability Mgr</span>
+            <span className="text-[11px] text-[#8faf97]">Sustainability manager</span>
           </div>
         </div>
       </div>

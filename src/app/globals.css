@@ -40,6 +40,122 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* EcoSphere product workspace */
+.ecosphere-app {
+  --app-ink: #17341f;
+  --app-muted: #66756b;
+  --app-line: #d8dfd3;
+  --app-panel: #fbfcf8;
+  --app-canvas: #eef1ea;
+}
+
+.app-content h1 {
+  color: var(--app-ink);
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  font-weight: 650;
+}
+
+.app-content h2,
+.app-content h3 {
+  letter-spacing: -0.02em;
+}
+
+.app-content .bg-white,
+.app-content .bg-white\/80,
+.app-content .bg-white\/90 {
+  background-color: var(--app-panel);
+}
+
+.app-content .border-slate-200,
+.app-content .border-slate-200\/50,
+.app-content .border-slate-200\/60,
+.app-content .border-slate-100,
+.app-content .divide-slate-100 > :not(:last-child) {
+  border-color: var(--app-line);
+}
+
+.app-content [class*="shadow-"] {
+  box-shadow: none;
+}
+
+.app-content .text-slate-900,
+.app-content .text-slate-800 {
+  color: var(--app-ink);
+}
+
+.app-content .text-slate-700,
+.app-content .text-slate-600,
+.app-content .text-slate-500 {
+  color: var(--app-muted);
+}
+
+.app-content input,
+.app-content select,
+.app-content textarea {
+  min-height: 42px;
+}
+
+.app-page-kicker {
+  color: #52705a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.app-page-copy {
+  margin-top: 0.55rem;
+  max-width: 62ch;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.app-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--app-line);
+  border-radius: 1.15rem;
+  background: var(--app-line);
+}
+
+.app-stat {
+  min-width: 0;
+  background: var(--app-panel);
+  padding: 1.25rem;
+}
+
+.app-panel {
+  border: 1px solid var(--app-line);
+  border-radius: 1.35rem;
+  background: var(--app-panel);
+}
+
+@media (min-width: 1024px) {
+  .app-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.ecosphere-app :focus-visible {
+  outline: 2px solid #2e6b46;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecosphere-app *,
+  .ecosphere-app *::before,
+  .ecosphere-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Custom easing curves */
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

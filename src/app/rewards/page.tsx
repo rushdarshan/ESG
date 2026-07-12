@@ -33,15 +33,16 @@ const LEADERBOARD = [
 export default function RewardsPage() {
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">Rewards</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">XP, badges, and department leaderboards</p>
+            <p className="app-page-kicker">Rewards</p>
+            <h1 className="mt-2">XP, badges, and department leaderboards</h1>
+            <p className="app-page-copy mt-2">Drive participation with visible progress, badge collection, and team competition.</p>
           </div>
 
           <AIInsight
@@ -55,7 +56,7 @@ export default function RewardsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
-              className="rounded-2xl border border-slate-200/50 bg-white p-6 dark:border-zinc-800/50 dark:bg-zinc-900"
+              className="app-panel p-6 bg-[#e5efd8]"
             >
               <h2 className="text-[15px] font-bold text-slate-900 dark:text-zinc-100">Badges</h2>
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -80,7 +81,7 @@ export default function RewardsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.15 }}
-              className="rounded-2xl border border-slate-200/50 bg-white p-6 dark:border-zinc-800/50 dark:bg-zinc-900"
+              className="app-panel p-6"
             >
               <div className="flex items-center justify-between">
                 <h2 className="text-[15px] font-bold text-slate-900 dark:text-zinc-100">Leaderboard</h2>

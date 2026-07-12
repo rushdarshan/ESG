@@ -72,15 +72,16 @@ function GoalProgress({ current, target, unit }: { current: number; target: numb
 export default function GoalsPage() {
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">Goals</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">SBTi-aligned targets across all three ESG pillars</p>
+            <p className="app-page-kicker">Goals</p>
+            <h1 className="mt-2">SBTi-aligned targets</h1>
+            <p className="app-page-copy mt-2">Track progress across environmental, social, and governance targets.</p>
           </div>
 
           <AIInsight
@@ -96,7 +97,7 @@ export default function GoalsPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 * gi }}
-                className={`rounded-2xl border border-slate-200/50 p-6 dark:border-zinc-800/50 ${g.bg}`}
+                className={`app-panel p-6 ${g.bg}`}
               >
                 <div className="mb-5 flex items-center gap-3">
                   <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${g.bg} ${g.color}`}>

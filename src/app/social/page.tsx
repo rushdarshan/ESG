@@ -141,14 +141,14 @@ export default function SocialPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-[1400px]">
+      <div className="mx-auto max-w-[1440px]">
         {/* Header */}
         <div className="mb-8 grid grid-cols-1 items-end gap-6 lg:grid-cols-[1fr_auto]">
           <div>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-[13px] font-medium text-slate-400"
+            className="app-page-kicker"
             >
               Social Module
             </motion.p>
@@ -156,7 +156,7 @@ export default function SocialPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl"
+              className="mt-2"
             >
               Employee Sustainability Hub
             </motion.h1>
@@ -164,7 +164,7 @@ export default function SocialPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="mt-2 text-sm text-slate-500"
+              className="app-page-copy"
             >
               Earn XP, climb the leaderboard, and reduce your carbon footprint
             </motion.p>
@@ -175,7 +175,7 @@ export default function SocialPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            className="flex items-center gap-4 rounded-2xl border border-slate-200/50 bg-white px-5 py-3 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            className="flex items-center gap-4 rounded-2xl border border-[#c9daea] bg-[#dce9f6] px-5 py-3 shadow-none"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-lg font-bold text-emerald-600">
               DS
@@ -211,7 +211,7 @@ export default function SocialPage() {
           variants={STAGGER}
           initial="hidden"
           animate="show"
-          className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
+          className="app-stat-grid mb-8"
         >
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -219,7 +219,7 @@ export default function SocialPage() {
               <motion.div
                 key={stat.label}
                 variants={FADE_UP}
-                className="rounded-2xl border border-slate-200/50 bg-white p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+                className="app-stat p-5"
               >
                 <Icon className={`h-5 w-5 ${stat.color}`} />
                 <p className="mt-3 text-xl font-bold tracking-tight text-slate-900">
@@ -239,7 +239,7 @@ export default function SocialPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <h2 className="mb-5 text-sm font-semibold text-slate-800">
                 Log an Action
@@ -339,7 +339,7 @@ export default function SocialPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-800">
@@ -408,7 +408,7 @@ export default function SocialPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-800">Badges</h2>
@@ -457,7 +457,7 @@ export default function SocialPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65 }}
-              className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+              className="app-panel p-6"
             >
               <h2 className="mb-4 text-sm font-semibold text-slate-800">
                 Collective Impact
