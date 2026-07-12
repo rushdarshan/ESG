@@ -56,10 +56,7 @@ export async function addRecord(input: AddRecordInput): Promise<EvidenceRecord> 
     },
   });
 
-  return {
-    ...record,
-    content: record.content,
-  };
+  return record as EvidenceRecord;
 }
 
 export async function getRecordsBySource(source: string, limit = 50): Promise<EvidenceRecord[]> {

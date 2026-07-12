@@ -12,48 +12,50 @@ import {
 // ── GET /api/evidence ───────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const source = searchParams.get("source");
-  const actionId = searchParams.get("actionId");
-  const metricId = searchParams.get("metricId");
-  const action = searchParams.get("action");
+  try {
+    const { searchParams } = new URL(request.url);
+    const source = searchParams.get("source");
+    const actionId = searchParams.get("actionId");
+    const metricId = searchParams.get("metricId");
+    const action = searchParams.get("action");
 
-  // Verify chain integrity
-  if (action === "verify") {
-    const result = await verifyChain();
-    return NextResponse.json(result);
-  }
+    if (action === "verify") {
+      const result = await verifyChain();
+      return NextResponse.json(result);
+    }
 
-  // Get chain stats
-  if (action === "stats") {
+    if (action === "stats") {
+      const count = await getRecordCount();
+      const latest = await getLatestRecord();
+      return NextResponse.json({
+        totalRecords: count,
+        latestRecord: latest
+          ? { id: latest.id, hash: latest.contentHash, createdAt: latest.createdAt }
+          : null,
+      });
+    }
+
+    if (source) {
+      const records = await getRecordsBySource(source);
+      return NextResponse.json(records);
+    }
+
+    if (actionId) {
+      const records = await getRecordsByAction(actionId);
+      return NextResponse.json(records);
+    }
+
+    if (metricId) {
+      const records = await getRecordsByMetric(metricId);
+      return NextResponse.json(records);
+    }
+
     const count = await getRecordCount();
-    const latest = await getLatestRecord();
-    return NextResponse.json({
-      totalRecords: count,
-      latestRecord: latest
-        ? { id: latest.id, hash: latest.contentHash, createdAt: latest.createdAt }
-        : null,
-    });
+    return NextResponse.json({ totalRecords: count });
+  } catch (error) {
+    console.error("Evidence fetch error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  if (source) {
-    const records = await getRecordsBySource(source);
-    return NextResponse.json(records);
-  }
-
-  if (actionId) {
-    const records = await getRecordsByAction(actionId);
-    return NextResponse.json(records);
-  }
-
-  if (metricId) {
-    const records = await getRecordsByMetric(metricId);
-    return NextResponse.json(records);
-  }
-
-  // Default: return chain stats
-  const count = await getRecordCount();
-  return NextResponse.json({ totalRecords: count });
 }
 
 // ── POST /api/evidence ──────────────────────────────────────────
