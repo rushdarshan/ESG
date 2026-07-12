@@ -8,20 +8,9 @@ import { ACTION_MAP, calculateXP } from "@/lib/actions";
 
 async function validateActionLocal(
   actionType: string,
-  _evidenceType: string,
-  _evidenceData: string
 ): Promise<{ confidence: number; carbonSaved: number; explanation: string }> {
   const actionDef = ACTION_MAP[actionType];
   const baseCarbon = actionDef?.baseCarbon ?? 1.0;
-
-  // Simple heuristic: self_report = 70%, photo = 90%, receipt = 85%, certificate = 95%, gps = 92%
-  const confidenceMap: Record<string, number> = {
-    photo: 90,
-    receipt: 85,
-    certificate: 95,
-    gps: 92,
-    self_report: 70,
-  };
 
   return {
     confidence: 85,
@@ -83,9 +72,9 @@ export async function POST(request: NextRequest) {
     try {
       // TODO: const ai = getAIProvider();
       // TODO: validation = await ai.validateAction(actionType, evidence.type, evidence.data);
-      validation = await validateActionLocal(actionType, evidence.type, evidence.data);
+      validation = await validateActionLocal(actionType);
     } catch {
-      validation = await validateActionLocal(actionType, evidence.type, evidence.data);
+      validation = await validateActionLocal(actionType);
     }
 
     // Flag low-confidence submissions

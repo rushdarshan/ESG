@@ -11,9 +11,7 @@ import {
   Lightning,
   Drop,
   Trophy,
-  Flame,
   Target,
-  CheckCircle,
   Warning,
 } from "@phosphor-icons/react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";

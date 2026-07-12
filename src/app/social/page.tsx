@@ -4,9 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
-  Medal,
-  Star,
-  ArrowUpRight,
   Flame,
   Target,
   Users,
