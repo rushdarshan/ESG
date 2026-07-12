@@ -29,29 +29,26 @@ export function ProvenancePanel() {
   return (
     <div className="space-y-4">
       {/* Provenance chain */}
-      <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2.5">
         {PROVENANCE.map((item, i) => {
           const Icon = item.icon;
           return (
             <motion.div
               key={item.label}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05 }}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+              className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50/40 p-2"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
                 <Icon className="h-3.5 w-3.5 text-slate-500" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-slate-400">{item.label}</p>
-                <p className="truncate text-[13px] font-medium text-slate-700">
+              <div className="min-w-0">
+                <p className="text-[10px] font-medium text-slate-400 leading-tight">{item.label}</p>
+                <p className="truncate text-[12px] font-semibold text-slate-700 mt-0.5">
                   {item.value}
                 </p>
               </div>
-              {i < PROVENANCE.length - 1 && (
-                <ArrowRight className="h-3 w-3 text-slate-200" />
-              )}
             </motion.div>
           );
         })}

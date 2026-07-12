@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { CheckCircle, Plus } from "@/lib/icons";
 
@@ -152,7 +146,7 @@ export function MACCCurve() {
       </motion.div>
 
       {/* Measure list */}
-      <div className="max-h-[360px] space-y-1.5 overflow-y-auto pr-1">
+      <div className="max-h-[180px] space-y-1 overflow-y-auto pr-1">
         {measures.map((m, i) => (
           <motion.button
             key={m.id}
@@ -160,7 +154,7 @@ export function MACCCurve() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 + i * 0.03 }}
             onClick={() => toggleMeasure(m.id)}
-            className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left transition-colors ${
+            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left transition-colors ${
               m.selected
                 ? "bg-emerald-50 hover:bg-emerald-100/80"
                 : "hover:bg-slate-50"
@@ -171,19 +165,21 @@ export function MACCCurve() {
             ) : (
               <Plus className="h-4 w-4 flex-shrink-0 text-slate-300" />
             )}
-            <span className="flex-1 text-[13px] font-medium text-slate-700">
+            <span className="flex-1 min-w-0 truncate text-[12.5px] font-medium text-slate-700">
               {m.name}
             </span>
-            <span
-              className={`text-[12px] font-semibold ${
-                m.costPerTonne < 0 ? "text-emerald-600" : "text-slate-500"
-              }`}
-            >
-              {m.costPerTonne < 0 ? "-" : ""}${Math.abs(m.costPerTonne)}/tCO₂e
-            </span>
-            <span className="text-[12px] text-slate-400">
-              {m.reduction} tCO₂e
-            </span>
+            <div className="flex items-center gap-2 flex-shrink-0 text-[11.5px] whitespace-nowrap">
+              <span
+                className={`font-semibold ${
+                  m.costPerTonne < 0 ? "text-emerald-600" : "text-slate-500"
+                }`}
+              >
+                {m.costPerTonne < 0 ? "-" : ""}${Math.abs(m.costPerTonne)}/t
+              </span>
+              <span className="text-slate-400">
+                {m.reduction} t
+              </span>
+            </div>
           </motion.button>
         ))}
       </div>

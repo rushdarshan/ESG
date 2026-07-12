@@ -52,8 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "stats") {
-      const count = await getRecordCount();
-      const latest = await getLatestRecord();
+      const [count, latest] = await Promise.all([getRecordCount(), getLatestRecord()]);
       return NextResponse.json({
         totalRecords: count,
         latestRecord: latest

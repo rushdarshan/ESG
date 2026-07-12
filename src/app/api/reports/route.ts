@@ -31,22 +31,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
-    // Fetch metrics for this period
-    const metrics = await db.eSGMetric.findMany({
-      where: { organizationId, period },
-    });
-
-    // Fetch employee actions
-    const actions = await db.employeeAction.findMany({
-      where: { department: { organizationId } },
-      include: { employee: { select: { name: true } }, department: { select: { name: true } } },
-    });
-
-    // Fetch evidence records
-    const evidenceCount = await db.evidenceRecord.count();
-
-    // Verify chain integrity
-    const chainResult = await verifyChain();
+    // Fetch metrics, actions, evidence, and verify chain in parallel
+    const [metrics, actions, evidenceCount, chainResult] = await Promise.all([
+      db.eSGMetric.findMany({ where: { organizationId, period } }),
+      db.employeeAction.findMany({
+        where: { department: { organizationId } },
+        include: { employee: { select: { name: true } }, department: { select: { name: true } } },
+      }),
+      db.evidenceRecord.count(),
+      verifyChain(),
+    ]);
 
     // Calculate environmental totals
     const scope1 = metrics
