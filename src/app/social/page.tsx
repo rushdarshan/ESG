@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
@@ -8,17 +8,14 @@ import {
   Target,
   Users,
   CheckCircle,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
-import { ACTION_CATALOG, type ActionType } from "@/types";
+import { ACTION_TYPES, EVIDENCE_OPTIONS } from "@/lib/actions";
 
-const ACTION_LIST = Object.entries(ACTION_CATALOG).map(([key, val]) => ({
-  id: key as ActionType,
-  ...val,
-}));
+const ACTION_LIST = ACTION_TYPES;
 
-const LEADERBOARD = [
+const FALLBACK_LEADERBOARD = [
   { rank: 1, name: "Priya Nair", dept: "Engineering", carbon: 42.8, xp: 1240, badge: "Tree Hugger" },
   { rank: 2, name: "Arjun Mehta", dept: "Operations", carbon: 38.2, xp: 1180, badge: "Green Commuter" },
   { rank: 3, name: "Sneha Kapoor", dept: "Marketing", carbon: 31.5, xp: 980, badge: "Recycling Pro" },
@@ -29,13 +26,20 @@ const LEADERBOARD = [
   { rank: 8, name: "Karthik Menon", dept: "Operations", carbon: 15.4, xp: 470, badge: null },
 ];
 
-const BADGES = [
+const FALLBACK_BADGES = [
   { name: "Green Commuter", icon: "🚲", desc: "50 bike commutes logged", earned: true, progress: 100 },
   { name: "Tree Hugger", icon: "🌳", desc: "Plant 10 trees", earned: true, progress: 100 },
   { name: "Recycling Pro", icon: "♻️", desc: "100 recycling actions", earned: true, progress: 100 },
   { name: "Energy Saver", icon: "💡", desc: "25 energy suggestions", earned: false, progress: 68 },
   { name: "CSR Champion", icon: "🤝", desc: "5 volunteering sessions", earned: false, progress: 40 },
   { name: "Carbon Crusher", icon: "🏔️", desc: "Save 100 kg CO₂e", earned: false, progress: 82 },
+];
+
+const FALLBACK_STATS = [
+  { label: "Total Actions", value: "1,284", icon: Target, color: "text-emerald-500" },
+  { label: "Active Participants", value: "487", icon: Users, color: "text-blue-500" },
+  { label: "Carbon Saved", value: "142.8 tCO₂e", icon: Flame, color: "text-amber-500" },
+  { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
 ];
 
 const STAGGER = {
@@ -48,8 +52,92 @@ const FADE_UP = {
   show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } },
 };
 
+interface LeaderboardEntry {
+  rank: number; name: string; dept: string; carbon: number; xp: number; badge: string | null;
+}
+
 export default function SocialPage() {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(FALLBACK_LEADERBOARD);
+  const [badges] = useState(FALLBACK_BADGES);
+  const [stats, setStats] = useState(FALLBACK_STATS);
+  const [loading, setLoading] = useState(true);
+  const [employeeId, setEmployeeId] = useState<string | null>(null);
+  const [evidenceType, setEvidenceType] = useState("self_report");
+  const [evidenceData, setEvidenceData] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionMessage, setSubmissionMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/actions?leaderboard=true")
+      .then((r) => r.json())
+      .then((data: { departmentName: string; totalCarbonSaved: number; totalXP: number; actionCount: number }[]) => {
+        setLeaderboard(
+          data.map((d, i) => ({
+            rank: i + 1,
+            name: d.departmentName,
+            dept: d.departmentName,
+            carbon: d.totalCarbonSaved,
+            xp: d.totalXP,
+            badge: null,
+          }))
+        );
+        const totalCarbon = data.reduce((s, d) => s + d.totalCarbonSaved, 0);
+        const totalActions = data.reduce((s, d) => s + d.actionCount, 0);
+        setStats([
+          { label: "Total Actions", value: totalActions.toLocaleString(), icon: Target, color: "text-emerald-500" },
+          { label: "Active Participants", value: `${data.length} depts`, icon: Users, color: "text-blue-500" },
+          { label: "Carbon Saved", value: totalCarbon >= 1000 ? `${(totalCarbon / 1000).toFixed(1)} tCO₂e` : `${totalCarbon.toFixed(1)} kg CO₂e`, icon: Flame, color: "text-amber-500" },
+          { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
+        ]);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+
+    fetch("/api/scenarios")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => data?.scenarios?.[0]?.id
+        ? fetch(`/api/scenarios?organizationId=${data.scenarios[0].id}`)
+        : null)
+      .then((response) => response?.ok ? response.json() : null)
+      .then((data) => setEmployeeId(data?.employees?.[0]?.id ?? null))
+      .catch(() => undefined);
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!selectedAction || !employeeId || !evidenceData.trim()) {
+      setSubmissionMessage("Add a short evidence description before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmissionMessage(null);
+    try {
+      const response = await fetch("/api/actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actionType: selectedAction,
+          employeeId,
+          evidence: { type: evidenceType, data: evidenceData.trim() },
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Could not submit the action.");
+
+      setSubmissionMessage(
+        result.status === "approved"
+          ? `Action approved: +${result.xp} XP and ${result.carbonSaved} kg CO₂e.`
+          : "Action submitted for review."
+      );
+      setSelectedAction(null);
+      setEvidenceData("");
+    } catch (error) {
+      setSubmissionMessage(error instanceof Error ? error.message : "Could not submit the action.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -125,12 +213,7 @@ export default function SocialPage() {
           animate="show"
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
-          {[
-            { label: "Total Actions", value: "1,284", icon: Target, color: "text-emerald-500" },
-            { label: "Active Participants", value: "487", icon: Users, color: "text-blue-500" },
-            { label: "Carbon Saved", value: "142.8 tCO₂e", icon: Flame, color: "text-amber-500" },
-            { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
-          ].map((stat) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div
@@ -168,11 +251,10 @@ export default function SocialPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.45 + i * 0.03 }}
-                    onClick={() =>
-                      setSelectedAction(
-                        selectedAction === action.id ? null : action.id
-                      )
-                    }
+                    onClick={() => {
+                      setSelectedAction(selectedAction === action.id ? null : action.id);
+                      setSubmissionMessage(null);
+                    }}
                     className={`group flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-colors active:scale-[0.97] ${
                       selectedAction === action.id
                         ? "border-emerald-300 bg-emerald-50 shadow-md"
@@ -182,7 +264,7 @@ export default function SocialPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{action.icon}</span>
                       <span className="text-[13px] font-semibold text-slate-800">
-                        {action.label}
+                        {action.name}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-slate-500">
@@ -208,12 +290,33 @@ export default function SocialPage() {
                           <p className="text-[13px] font-semibold text-slate-800">
                             Submit Evidence
                           </p>
-                          <p className="mt-1 text-[12px] text-slate-500">
-                            Upload photo, receipt, or self-report
-                          </p>
+                          <p className="mt-1 text-[12px] text-slate-500">Choose evidence and briefly describe it.</p>
                         </div>
-                        <button className="rounded-xl bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
-                          Submit Action
+                      </div>
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                        <select
+                          value={evidenceType}
+                          onChange={(event) => setEvidenceType(event.target.value)}
+                          aria-label="Evidence type"
+                          className="rounded-xl border border-emerald-200 bg-white px-3 py-2 text-[13px] text-slate-700 outline-none focus:border-emerald-500"
+                        >
+                          {EVIDENCE_OPTIONS.map((option) => (
+                            <option key={option.type} value={option.type}>{option.label}</option>
+                          ))}
+                        </select>
+                        <input
+                          value={evidenceData}
+                          onChange={(event) => setEvidenceData(event.target.value)}
+                          placeholder="For example: Cycled 4 km to the office"
+                          className="min-w-0 flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-[13px] text-slate-700 outline-none focus:border-emerald-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          disabled={submitting || !employeeId}
+                          className="rounded-xl bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {submitting ? "Submitting..." : "Submit Action"}
                         </button>
                       </div>
                     </div>
@@ -221,6 +324,15 @@ export default function SocialPage() {
                 )}
               </AnimatePresence>
             </motion.div>
+
+            {submissionMessage && (
+              <p
+                role="status"
+                className={`rounded-xl px-4 py-3 text-[13px] ${submissionMessage.startsWith("Action approved") || submissionMessage.startsWith("Action submitted") ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}
+              >
+                {submissionMessage}
+              </p>
+            )}
 
             {/* Leaderboard */}
             <motion.div
@@ -235,8 +347,11 @@ export default function SocialPage() {
                 </h2>
                 <span className="text-[11px] text-slate-400">This month</span>
               </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-10 text-sm text-slate-400">Loading leaderboard…</div>
+              ) : (
               <div className="space-y-1">
-                {LEADERBOARD.map((person, i) => (
+                {leaderboard.map((person, i) => (
                   <motion.div
                     key={person.rank}
                     initial={{ opacity: 0, x: -8 }}
@@ -282,6 +397,7 @@ export default function SocialPage() {
                   </motion.div>
                 ))}
               </div>
+            )}
             </motion.div>
           </div>
 
@@ -297,11 +413,11 @@ export default function SocialPage() {
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-800">Badges</h2>
                 <span className="rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">
-                  3 of 6 earned
+                  {badges.filter((b) => b.earned).length} of {badges.length} earned
                 </span>
               </div>
               <div className="space-y-3">
-                {BADGES.map((badge, i) => (
+                {badges.map((badge, i) => (
                   <motion.div
                     key={badge.name}
                     initial={{ opacity: 0, x: 8 }}
@@ -329,7 +445,6 @@ export default function SocialPage() {
                     {badge.earned && (
                       <CheckCircle
                         className="h-4 w-4 flex-shrink-0 text-emerald-500"
-                        weight="fill"
                       />
                     )}
                   </motion.div>

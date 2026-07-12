@@ -181,7 +181,6 @@ export function createGeminiProvider(): AIProvider {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-
   const model = genAI.getGenerativeModel({
     model: getModelName(),
   });

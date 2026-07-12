@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck,
@@ -14,11 +14,11 @@ import {
   Download,
   CaretDown,
   CaretUp,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
-const GRI_REQUIREMENTS = [
+const DEFAULT_GRI_REQUIREMENTS = [
   { id: "GRI 302-1", desc: "Energy consumption within the organization", status: "met" as const, evidence: 12 },
   { id: "GRI 302-3", desc: "Energy intensity", status: "met" as const, evidence: 8 },
   { id: "GRI 305-1", desc: "Direct (Scope 1) GHG emissions", status: "met" as const, evidence: 6 },
@@ -31,7 +31,7 @@ const GRI_REQUIREMENTS = [
   { id: "GRI 403-2", desc: "Types of injury and rates", status: "gap" as const, evidence: 0 },
 ];
 
-const CSRD_REQUIREMENTS = [
+const DEFAULT_CSRD_REQUIREMENTS = [
   { id: "ESRS E1-1", desc: "Transition plan for climate change mitigation", status: "met" as const, evidence: 7 },
   { id: "ESRS E1-4", desc: "Targets and reduction initiatives", status: "partial" as const, evidence: 3 },
   { id: "ESRS E1-6", desc: "Gross Scope 1, 2, 3 emissions", status: "met" as const, evidence: 15 },
@@ -39,7 +39,7 @@ const CSRD_REQUIREMENTS = [
   { id: "ESRS G1-1", desc: "Business ethics and anti-corruption", status: "met" as const, evidence: 8 },
 ];
 
-const HASH_CHAIN = [
+const DEFAULT_HASH_CHAIN = [
   { hash: "a3f2...8b1c", prev: "0000...0000", source: "Upload", time: "14:32" },
   { hash: "7e1b...4d2a", prev: "a3f2...8b1c", source: "Action", time: "14:28" },
   { hash: "c9d3...6f5e", prev: "7e1b...4d2a", source: "Upload", time: "14:15" },
@@ -48,7 +48,7 @@ const HASH_CHAIN = [
 ];
 
 const STATUS_CONFIG = {
-  met: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50", label: "Met" },
+  met: { icon: CheckCircle, color: "text-violet-500", bg: "bg-violet-50", label: "Met" },
   partial: { icon: Warning, color: "text-amber-500", bg: "bg-amber-50", label: "Partial" },
   gap: { icon: XCircle, color: "text-rose-500", bg: "bg-rose-50", label: "Gap" },
 };
@@ -65,11 +65,74 @@ const FADE_UP = {
 
 export default function GovernancePage() {
   const [expandedFramework, setExpandedFramework] = useState<"GRI" | "CSRD">("GRI");
+  const [griReqs, setGriReqs] = useState(DEFAULT_GRI_REQUIREMENTS);
+  const [csrdReqs, setCsrdReqs] = useState(DEFAULT_CSRD_REQUIREMENTS);
+  const [hashChain, setHashChain] = useState(DEFAULT_HASH_CHAIN);
+  const [evidenceCount, setEvidenceCount] = useState(142);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState("2h ago");
 
-  const griMet = GRI_REQUIREMENTS.filter((r) => r.status === "met").length;
-  const griPartial = GRI_REQUIREMENTS.filter((r) => r.status === "partial").length;
-  const griGap = GRI_REQUIREMENTS.filter((r) => r.status === "gap").length;
-  const griScore = Math.round((griMet / GRI_REQUIREMENTS.length) * 100);
+  useEffect(() => {
+    async function load() {
+      try {
+        const [reportsRes, evidenceRes] = await Promise.all([
+          fetch("/api/reports?type=compliance"),
+          fetch("/api/evidence"),
+        ]);
+        if (reportsRes.ok) {
+          const data = await reportsRes.json();
+          if (data.gri) setGriReqs(data.gri);
+          if (data.csrd) setCsrdReqs(data.csrd);
+          if (data.evidenceCount) setEvidenceCount(data.evidenceCount);
+        }
+        if (evidenceRes.ok) {
+          const data = await evidenceRes.json();
+          if (data.chain) setHashChain(data.chain);
+          if (data.total) setEvidenceCount(data.total);
+        }
+      } catch {
+        // fallback to defaults
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const griMet = griReqs.filter((r) => r.status === "met").length;
+  const griPartial = griReqs.filter((r) => r.status === "partial").length;
+  const griGap = griReqs.filter((r) => r.status === "gap").length;
+  const griScore = griReqs.length ? Math.round((griMet / griReqs.length) * 100) : 0;
+  const csrdMet = csrdReqs.filter((r) => r.status === "met").length;
+  const csrdPartial = csrdReqs.filter((r) => r.status === "partial").length;
+  const csrdScore = csrdReqs.length ? Math.round((csrdMet / csrdReqs.length) * 100) : 0;
+
+  const downloadReport = async () => {
+    setGenerating(true);
+    try {
+      const response = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "executive" }),
+      });
+      if (!response.ok) throw new Error("Report generation failed");
+
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "EcoSphere_ESG_Report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setLastGenerated("just now");
+    } catch {
+      setLastGenerated("failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -107,10 +170,12 @@ export default function GovernancePage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-700 active:scale-[0.98]"
+            onClick={downloadReport}
+            disabled={generating}
+            className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-violet-600/20 transition-colors hover:bg-violet-700 active:scale-[0.98] disabled:opacity-60"
           >
             <FileText className="h-4 w-4" />
-            Generate Report
+            {generating ? "Generating..." : "Generate Report"}
           </motion.button>
         </div>
 
@@ -136,9 +201,9 @@ export default function GovernancePage() {
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
           {[
-            { label: "GRI Score", value: `${griScore}%`, color: "text-emerald-600" },
-            { label: "CSRD Score", value: "72%", color: "text-blue-600" },
-            { label: "Evidence Records", value: "142", color: "text-slate-900" },
+            { label: "GRI Score", value: `${griScore}%`, color: "text-violet-600" },
+            { label: "CSRD Score", value: `${csrdScore}%`, color: "text-blue-600" },
+            { label: "Evidence Records", value: `${evidenceCount}`, color: "text-slate-900" },
             { label: "Open Gaps", value: `${griGap}`, color: "text-rose-600" },
           ].map((stat) => (
             <motion.div
@@ -154,7 +219,14 @@ export default function GovernancePage() {
           ))}
         </motion.div>
 
-        {/* Main content — 2-column */}
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+              <p className="text-sm text-slate-400">Loading compliance data...</p>
+            </div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
           {/* Left: Compliance frameworks */}
           <div className="space-y-6">
@@ -172,8 +244,8 @@ export default function GovernancePage() {
                 className="flex w-full items-center justify-between p-6 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-                    <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
+                    <ShieldCheck className="h-5 w-5 text-violet-600" />
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-semibold text-slate-800">
@@ -187,7 +259,7 @@ export default function GovernancePage() {
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-emerald-500"
+                      className="h-full rounded-full bg-violet-500"
                       style={{ width: `${griScore}%` }}
                     />
                   </div>
@@ -211,7 +283,7 @@ export default function GovernancePage() {
                     className="overflow-hidden"
                   >
                     <div className="border-t border-slate-100 px-6 pb-4">
-                      {GRI_REQUIREMENTS.map((req, i) => {
+                      {griReqs.map((req, i) => {
                         const cfg = STATUS_CONFIG[req.status];
                         const Icon = cfg.icon;
                         return (
@@ -227,7 +299,6 @@ export default function GovernancePage() {
                             >
                               <Icon
                                 className={`h-3.5 w-3.5 ${cfg.color}`}
-                                weight="fill"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -272,8 +343,8 @@ export default function GovernancePage() {
                       CSRD / ESRS
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      {CSRD_REQUIREMENTS.filter((r) => r.status === "met").length} met,{' '}
-                      {CSRD_REQUIREMENTS.filter((r) => r.status === "partial").length} partial
+                      {csrdMet} met,{' '}
+                      {csrdPartial} partial
                     </p>
                   </div>
                 </div>
@@ -283,14 +354,14 @@ export default function GovernancePage() {
                       className="h-full rounded-full bg-blue-500"
                       style={{
                         width: `${
-                          (CSRD_REQUIREMENTS.filter((r) => r.status === "met").length /
-                            CSRD_REQUIREMENTS.length) *
+                          (csrdMet /
+                            csrdReqs.length) *
                           100
                         }%`,
                       }}
                     />
                   </div>
-                  <span className="text-[13px] font-bold text-slate-900">72%</span>
+                  <span className="text-[13px] font-bold text-slate-900">{csrdScore}%</span>
                   {expandedFramework === "CSRD" ? (
                     <CaretUp className="h-4 w-4 text-slate-400" />
                   ) : (
@@ -308,7 +379,7 @@ export default function GovernancePage() {
                     className="overflow-hidden"
                   >
                     <div className="border-t border-slate-100 px-6 pb-4">
-                      {CSRD_REQUIREMENTS.map((req, i) => {
+                      {csrdReqs.map((req, i) => {
                         const cfg = STATUS_CONFIG[req.status];
                         const Icon = cfg.icon;
                         return (
@@ -324,7 +395,6 @@ export default function GovernancePage() {
                             >
                               <Icon
                                 className={`h-3.5 w-3.5 ${cfg.color}`}
-                                weight="fill"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -361,18 +431,17 @@ export default function GovernancePage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Evidence Chain
                 </h2>
-                <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1">
+                <div className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2 py-1">
                   <CheckCircle
-                    className="h-3 w-3 text-emerald-500"
-                    weight="fill"
+                    className="h-3 w-3 text-violet-500"
                   />
-                  <span className="text-[10px] font-medium text-emerald-600">
+                  <span className="text-[10px] font-medium text-violet-600">
                     Verified
                   </span>
                 </div>
               </div>
               <div className="space-y-0">
-                {HASH_CHAIN.map((record, i) => (
+                {hashChain.map((record, i) => (
                   <motion.div
                     key={record.hash}
                     initial={{ opacity: 0, x: 8 }}
@@ -381,7 +450,7 @@ export default function GovernancePage() {
                     className="relative flex items-start gap-3 pb-4 last:pb-0"
                   >
                     {/* Connector line */}
-                    {i < HASH_CHAIN.length - 1 && (
+                    {i < hashChain.length - 1 && (
                       <div className="absolute left-3 top-6 h-full w-px bg-slate-200" />
                     )}
                     <div className="relative z-10 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">
@@ -421,7 +490,7 @@ export default function GovernancePage() {
                   Latest Report
                 </h2>
                 <span className="text-[11px] text-slate-400">
-                  Generated 2h ago
+                  Generated {lastGenerated}
                 </span>
               </div>
               <div className="space-y-3">
@@ -448,13 +517,19 @@ export default function GovernancePage() {
                   </div>
                 ))}
               </div>
-              <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-[0.98]">
+              <button
+                type="button"
+                onClick={downloadReport}
+                disabled={generating}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 <Download className="h-4 w-4" />
-                Download PDF (16 pages)
+                {generating ? "Generating PDF..." : "Download PDF"}
               </button>
             </motion.div>
           </div>
         </div>
+        )}
       </div>
     </DashboardLayout>
   );

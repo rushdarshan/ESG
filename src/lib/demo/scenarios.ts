@@ -8,6 +8,7 @@ export interface ScenarioInfo {
 }
 
 export async function listScenarios(): Promise<ScenarioInfo[]> {
+  if (!db) return [];
   const orgs = await db.organization.findMany({
     include: {
       scores: {
@@ -26,6 +27,7 @@ export async function listScenarios(): Promise<ScenarioInfo[]> {
 }
 
 export async function getScenarioData(organizationId: string) {
+  if (!db) return null;
   const org = await db.organization.findUnique({
     where: { id: organizationId },
     include: {
@@ -57,6 +59,9 @@ export async function getScenarioData(organizationId: string) {
 
   return {
     organization: { id: org.id, name: org.name, industry: org.industry },
+    employees: org.departments.flatMap((department) =>
+      department.employees.map((employee) => ({ id: employee.id, name: employee.name }))
+    ),
     departments: org.departments.map((d) => ({
       name: d.name,
       employeeCount: d.employees.length,

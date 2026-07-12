@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -7,7 +8,7 @@ import {
   Lightning,
   Drop,
   Trash,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { UploadZone } from "@/components/environment/UploadZone";
 import { ScopeBreakdown } from "@/components/environment/ScopeBreakdown";
@@ -26,13 +27,22 @@ const FADE_UP = {
 };
 
 const QUICK_STATS = [
-  { label: "Electricity", value: "128,450 kWh", change: "+4.2%", icon: Lightning, color: "text-amber-500" },
+  { label: "Electricity", value: "128,450 kWh", change: "+4.2%", icon: Lightning, color: "text-emerald-500" },
   { label: "Fleet Fuel", value: "8,500 L", change: "-8.1%", icon: TreeEvergreen, color: "text-emerald-500" },
-  { label: "Water", value: "45,000 L", change: "+1.3%", icon: Drop, color: "text-blue-500" },
-  { label: "Waste Diverted", value: "74%", change: "+12%", icon: Trash, color: "text-violet-500" },
+  { label: "Water", value: "45,000 L", change: "+1.3%", icon: Drop, color: "text-emerald-500" },
+  { label: "Waste Diverted", value: "74%", change: "+12%", icon: Trash, color: "text-emerald-500" },
 ];
 
 export default function EnvironmentPage() {
+  const [organizationId, setOrganizationId] = useState<string>();
+
+  useEffect(() => {
+    fetch("/api/scenarios")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setOrganizationId(data?.scenarios?.[0]?.id))
+      .catch(() => undefined);
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px]">
@@ -97,7 +107,7 @@ export default function EnvironmentPage() {
                 <div className="flex items-center justify-between">
                   <Icon className={`h-5 w-5 ${stat.color}`} />
                   <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-3 w-3" weight="bold" />
+                    <ArrowUpRight className="h-3 w-3" />
                     {stat.change}
                   </span>
                 </div>
@@ -124,7 +134,7 @@ export default function EnvironmentPage() {
               <h2 className="mb-4 text-sm font-semibold text-slate-800">
                 Upload Documents
               </h2>
-              <UploadZone />
+              <UploadZone organizationId={organizationId} />
             </motion.div>
 
             {/* Scope Breakdown */}
@@ -154,7 +164,7 @@ export default function EnvironmentPage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Abatement Cost Curve
                 </h2>
-                <span className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-medium text-slate-500">
+                <span className="rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600">
                   IEA / IRENA / NREL
                 </span>
               </div>

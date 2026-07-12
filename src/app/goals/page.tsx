@@ -2,14 +2,11 @@
 
 import { motion } from "framer-motion";
 import {
-  Target,
   TreeEvergreen,
   Users,
   ShieldCheck,
-  ArrowUpRight,
-  TrendUp,
   CalendarBlank,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 

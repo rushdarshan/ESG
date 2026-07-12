@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured. Set DATABASE_URL." }, { status: 503 });
+    }
+
     // Check for duplicate within 24 hours
     const recentDuplicate = await db.employeeAction.findFirst({
       where: {
@@ -110,6 +114,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Carbon rollup: Social → Environmental (ESGMetric)
+    if (carbonSaved > 0) {
+      const now = new Date();
+      const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      await db.eSGMetric.create({
+        data: {
+          organizationId: employee.organizationId,
+          scope: 3,
+          value: carbonSaved,
+          unit: "kg CO₂e",
+          confidence: aiResult.confidence,
+          category: "employee_actions",
+          description: `Employee action: ${actionType}`,
+          period,
+          emissionFactorVersion: "1.0",
+        },
+      });
+    }
+
     return NextResponse.json({
       id: action.id,
       xp: xpAwarded,
@@ -129,8 +152,38 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured. Set DATABASE_URL." }, { status: 503 });
+    }
     const employeeId = searchParams.get("employeeId");
     const departmentId = searchParams.get("departmentId");
+    const leaderboard = searchParams.get("leaderboard");
+
+    // ── Leaderboard (aggregated by department) ─────────────
+    if (leaderboard === "true") {
+      const departments = await db.department.findMany({
+        select: {
+          id: true,
+          name: true,
+          actions: {
+            select: { carbonSaved: true, xpAwarded: true },
+          },
+        },
+      });
+
+      const leaderboardData = departments
+        .map((d) => ({
+          departmentId: d.id,
+          departmentName: d.name,
+          totalCarbonSaved: d.actions.reduce((sum, a) => sum + a.carbonSaved, 0),
+          totalXP: d.actions.reduce((sum, a) => sum + a.xpAwarded, 0),
+          actionCount: d.actions.length,
+        }))
+        .filter((d) => d.actionCount > 0)
+        .sort((a, b) => b.totalCarbonSaved - a.totalCarbonSaved);
+
+      return NextResponse.json(leaderboardData);
+    }
 
     if (employeeId) {
       const actions = await db.employeeAction.findMany({
@@ -151,7 +204,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(actions);
     }
 
-    return NextResponse.json({ error: "Provide employeeId or departmentId" }, { status: 400 });
+    const [totalActions, recentActions] = await Promise.all([
+      db.employeeAction.count(),
+      db.employeeAction.findMany({
+        include: { employee: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+    ]);
+
+    return NextResponse.json({
+      actions: recentActions.map((action) => ({
+        user: action.employee.name,
+        action: action.actionType.replace(/_/g, " "),
+        xp: `+${action.xpAwarded} XP`,
+        time: action.createdAt.toISOString(),
+      })),
+      summaryStats: [
+        {
+          label: "Employee Actions",
+          value: totalActions.toLocaleString(),
+          change: "Live data",
+        },
+      ],
+    });
   } catch (error) {
     console.error("Actions fetch error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

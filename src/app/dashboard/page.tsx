@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -13,7 +14,7 @@ import {
   Trophy,
   Target,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -73,8 +74,123 @@ const RECENT_ACTIONS = [
 ];
 
 export default function DashboardPage() {
+  const [modules, setModules] = useState(MODULES);
+  const [recentActions, setRecentActions] = useState(RECENT_ACTIONS);
+  const [summaryStats, setSummaryStats] = useState([
+    { label: "Carbon Footprint", value: "342 tCO₂e", icon: Lightning, color: "text-amber-500", change: "-6.2%" },
+    { label: "Water Usage", value: "45,000 L", icon: Drop, color: "text-blue-500", change: "+1.3%" },
+    { label: "Employee Actions", value: "1,284", icon: Target, color: "text-emerald-500", change: "+18%" },
+    { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500", change: "+12%" },
+  ]);
+  const [complianceFrameworks, setComplianceFrameworks] = useState([
+    { label: "GRI Standards", score: 70, color: "bg-emerald-500" },
+    { label: "CSRD / ESRS", score: 72, color: "bg-blue-500" },
+  ]);
+  const [complianceGaps, setComplianceGaps] = useState([
+    { label: "GRI 305-5: Emissions reduction", status: "gap" },
+    { label: "GRI 403-2: Workplace injury rates", status: "gap" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.allSettled([
+      fetch("/api/evidence?type=summary")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.modules) setModules(d.modules);
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+      fetch("/api/actions")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.actions) setRecentActions(d.actions);
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+      fetch("/api/reports?type=compliance")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.frameworks) setComplianceFrameworks(d.frameworks);
+          if (d.gaps) setComplianceGaps(d.gaps);
+        }),
+      fetch("/api/macc")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d.summaryStats)
+            setSummaryStats((prev) =>
+              prev.map((s) => {
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
+                return m ? { ...s, value: m.value, change: m.change } : s;
+              }),
+            );
+        }),
+    ]).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <DashboardLayout>
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm">
+          <div className="mx-auto max-w-[1400px] p-6">
+            <div className="mb-8">
+              <div className="mb-2 h-3 w-32 animate-pulse rounded bg-slate-200" />
+              <div className="h-9 w-56 animate-pulse rounded bg-slate-200" />
+            </div>
+            <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-slate-200/50 bg-white p-6">
+                  <div className="mb-3 h-4 w-16 animate-pulse rounded bg-slate-100" />
+                  <div className="mb-1.5 h-5 w-24 animate-pulse rounded bg-slate-200" />
+                  <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-slate-200/50 bg-white p-6">
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="h-10 w-10 animate-pulse rounded-xl bg-slate-200" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-slate-200" />
+                  </div>
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div key={j} className="flex items-center justify-between">
+                        <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+                        <div className="h-3 w-16 animate-pulse rounded bg-slate-200" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-[1400px]">
         {/* Header */}
         <div className="mb-8">
@@ -93,14 +209,6 @@ export default function DashboardPage() {
           >
             ESG Dashboard
           </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mt-2 text-sm text-slate-500"
-          >
-            Your organization&apos;s environmental, social, and governance performance at a glance
-          </motion.p>
         </div>
 
         {/* AI Insight */}
@@ -124,23 +232,18 @@ export default function DashboardPage() {
           animate="show"
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
-          {[
-            { label: "Carbon Footprint", value: "342 tCO₂e", icon: Lightning, color: "text-amber-500", change: "-6.2%" },
-            { label: "Water Usage", value: "45,000 L", icon: Drop, color: "text-blue-500", change: "+1.3%" },
-            { label: "Employee Actions", value: "1,284", icon: Target, color: "text-emerald-500", change: "+18%" },
-            { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500", change: "+12%" },
-          ].map((stat) => {
+          {summaryStats.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div
                 key={stat.label}
                 variants={FADE_UP}
-                className="rounded-2xl border border-slate-200/50 bg-white p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+                className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
               >
                 <div className="flex items-center justify-between">
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
+                  <Icon className="h-5 w-5 text-slate-400" />
                   <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-3 w-3" weight="bold" />
+                    <ArrowUpRight className="h-3 w-3" />
                     {stat.change}
                   </span>
                 </div>
@@ -160,13 +263,13 @@ export default function DashboardPage() {
           animate="show"
           className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3"
         >
-          {MODULES.map((mod) => {
+          {modules.map((mod) => {
             const Icon = mod.icon;
             return (
               <motion.div key={mod.title} variants={FADE_UP}>
                 <Link
                   href={mod.href}
-                  className="group block rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] active:scale-[0.99]"
+                  className="group block rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] active:scale-[0.99]"
                 >
                   <div className="mb-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -205,7 +308,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-800">
@@ -219,7 +322,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-1">
-              {RECENT_ACTIONS.map((a, i) => (
+              {recentActions.map((a, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -8 }}
@@ -250,7 +353,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
+            className="rounded-2xl border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
           >
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-800">
@@ -264,10 +367,7 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {[
-                { label: "GRI Standards", score: 70, color: "bg-emerald-500" },
-                { label: "CSRD / ESRS", score: 72, color: "bg-blue-500" },
-              ].map((fw, i) => (
+              {complianceFrameworks.map((fw, i) => (
                 <motion.div
                   key={fw.label}
                   initial={{ opacity: 0 }}
@@ -290,12 +390,9 @@ export default function DashboardPage() {
               ))}
             </div>
             <div className="mt-5 space-y-2">
-              {[
-                { label: "GRI 305-5 — Emissions reduction", status: "gap" },
-                { label: "GRI 403-2 — Workplace injury rates", status: "gap" },
-              ].map((gap, i) => (
+              {complianceGaps.map((gap, i) => (
                 <div key={i} className="flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2">
-                  <Warning className="h-3.5 w-3.5 text-rose-500" weight="fill" />
+                  <Warning className="h-3.5 w-3.5 text-rose-500" />
                   <span className="text-[11px] text-rose-700">{gap.label}</span>
                 </div>
               ))}

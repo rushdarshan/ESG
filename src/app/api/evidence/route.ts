@@ -8,6 +8,7 @@ import {
   getLatestRecord,
   addRecord,
 } from "@/lib/evidence/registry";
+import { db } from "@/lib/db";
 
 // ── GET /api/evidence ───────────────────────────────────────────
 
@@ -18,6 +19,32 @@ export async function GET(request: NextRequest) {
     const actionId = searchParams.get("actionId");
     const metricId = searchParams.get("metricId");
     const action = searchParams.get("action");
+    const type = searchParams.get("type");
+
+    if (type === "summary") {
+      if (!db) {
+        return NextResponse.json({ totalRecords: 0, summaryStats: [] });
+      }
+
+      const [totalRecords, metrics] = await Promise.all([
+        getRecordCount(),
+        db.eSGMetric.findMany({ select: { category: true, value: true, unit: true } }),
+      ]);
+      const carbonFootprint = metrics.reduce((total, metric) => total + metric.value, 0);
+      const waterUsage = metrics
+        .filter((metric) => metric.category.toLowerCase().includes("water"))
+        .reduce((total, metric) => total + metric.value, 0);
+
+      return NextResponse.json({
+        totalRecords,
+        summaryStats: [
+          { label: "Carbon Footprint", value: `${carbonFootprint.toFixed(1)} tCO₂e`, change: "Live data" },
+          ...(waterUsage > 0
+            ? [{ label: "Water Usage", value: `${waterUsage.toLocaleString()} L`, change: "Live data" }]
+            : []),
+        ],
+      });
+    }
 
     if (action === "verify") {
       const result = await verifyChain();

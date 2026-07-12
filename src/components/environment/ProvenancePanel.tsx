@@ -8,7 +8,7 @@ import {
   Database,
   ArrowRight,
   Hash,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 
 interface ProvenanceItem {
   label: string;
@@ -60,7 +60,7 @@ export function ProvenancePanel() {
       {/* Hash chain verification */}
       <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-500" weight="fill" />
+          <ShieldCheck className="h-4 w-4 text-emerald-500" />
           <span className="text-[12px] font-medium text-emerald-700">
             Chain Integrity Verified
           </span>

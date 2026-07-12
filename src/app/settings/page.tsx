@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  GearSix,
   Building,
   Bell,
   Key,
@@ -11,7 +10,7 @@ import {
   Palette,
   Globe,
   CheckCircle,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -31,8 +30,8 @@ function SettingRow({
       <div className="flex items-start gap-3">
         <Icon className="mt-0.5 h-4 w-4 text-slate-400" />
         <div>
-          <p className="text-[13px] font-medium text-slate-800 dark:text-zinc-200">{label}</p>
-          <p className="text-[12px] text-slate-400 dark:text-zinc-500">{desc}</p>
+          <p className="text-[13px] font-medium text-slate-800">{label}</p>
+          <p className="text-[12px] text-slate-400">{desc}</p>
         </div>
       </div>
       {children}
@@ -40,12 +39,16 @@ function SettingRow({
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ checked, label, onChange }: { checked: boolean; label: string; onChange: (v: boolean) => void }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
       className={`relative h-5 w-9 rounded-full transition-colors ${
-        checked ? "bg-emerald-500" : "bg-slate-200 dark:bg-zinc-700"
+        checked ? "bg-emerald-500" : "bg-slate-200"
       }`}
     >
       <motion.div
@@ -58,14 +61,53 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export default function SettingsPage() {
+  const [organizationName, setOrganizationName] = useState("GreenForge Industries");
+  const [industry, setIndustry] = useState("Industrial Manufacturing");
   const [emailNotif, setEmailNotif] = useState(true);
   const [reportNotif, setReportNotif] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const savedName = localStorage.getItem("ecosphere_org_name");
+      const savedInd = localStorage.getItem("ecosphere_industry");
+      if (savedName) setOrganizationName(savedName);
+      if (savedInd) setIndustry(savedInd);
+
+      const isDark = localStorage.getItem("theme") === "dark";
+      setDarkMode(isDark);
+      document.documentElement.classList.toggle("dark", isDark);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const handleThemeChange = (val: boolean) => {
+    setDarkMode(val);
+    if (val) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
+
   const handleSave = () => {
+    localStorage.setItem("ecosphere_org_name", organizationName);
+    localStorage.setItem("ecosphere_industry", industry);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleResetPreferences = () => {
+    localStorage.removeItem("ecosphere_org_name");
+    localStorage.removeItem("ecosphere_industry");
+    localStorage.removeItem("theme");
+    setOrganizationName("GreenForge Industries");
+    setIndustry("Industrial Manufacturing");
+    handleThemeChange(false);
+    setSaved(false);
   };
 
   return (
@@ -77,8 +119,8 @@ export default function SettingsPage() {
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">Settings</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">Organization configuration and preferences</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
+            <p className="mt-1 text-sm text-slate-500">Organization configuration and preferences</p>
           </div>
 
           <AIInsight
@@ -92,31 +134,36 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
-              className="rounded-2xl border border-slate-200/50 bg-white dark:border-zinc-800/50 dark:bg-zinc-900"
+              className="rounded-2xl border border-slate-200/50 bg-white"
             >
-              <div className="border-b border-slate-100 px-5 py-4 dark:border-zinc-800">
-                <p className="text-[13px] font-bold text-slate-900 dark:text-zinc-100">Organization</p>
+              <div className="border-b border-slate-100 px-5 py-4">
+                <p className="text-[13px] font-bold text-slate-900">Organization</p>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+              <div className="divide-y divide-slate-100">
                 <SettingRow icon={Building} label="Organization Name" desc="Shown on reports and dashboards">
                   <input
-                    defaultValue="GreenForge Industries"
-                    className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:focus:border-emerald-400"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                    className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500"
                   />
                 </SettingRow>
                 <SettingRow icon={Globe} label="Industry" desc="Used for benchmark comparisons">
-                  <select className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:focus:border-emerald-400">
-                    <option>Industrial Manufacturing</option>
-                    <option>Technology</option>
-                    <option>Energy</option>
-                    <option>Transportation</option>
+                  <select
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500"
+                  >
+                    <option value="Industrial Manufacturing">Industrial Manufacturing</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Energy">Energy</option>
+                    <option value="Transportation">Transportation</option>
                   </select>
                 </SettingRow>
-                <SettingRow icon={Palette} label="Theme" desc="Light or dark mode">
+                <SettingRow icon={Palette} label="Theme" desc="Preview dark color scheme">
                   <div className="flex items-center gap-2">
-                    <span className="text-[12px] text-slate-500 dark:text-zinc-400">Light</span>
-                    <Toggle checked={darkMode} onChange={setDarkMode} />
-                    <span className="text-[12px] text-slate-500 dark:text-zinc-400">Dark</span>
+                    <span className="text-[12px] text-slate-500">Off</span>
+                    <Toggle checked={darkMode} label="Dark mode" onChange={handleThemeChange} />
+                    <span className="text-[12px] text-slate-500">On</span>
                   </div>
                 </SettingRow>
               </div>
@@ -126,17 +173,17 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.15 }}
-              className="rounded-2xl border border-slate-200/50 bg-white dark:border-zinc-800/50 dark:bg-zinc-900"
+              className="rounded-2xl border border-slate-200/50 bg-white"
             >
-              <div className="border-b border-slate-100 px-5 py-4 dark:border-zinc-800">
-                <p className="text-[13px] font-bold text-slate-900 dark:text-zinc-100">Notifications</p>
+              <div className="border-b border-slate-100 px-5 py-4">
+                <p className="text-[13px] font-bold text-slate-900">Notifications</p>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+              <div className="divide-y divide-slate-100">
                 <SettingRow icon={Bell} label="Email Reports" desc="Weekly executive summary via email">
-                  <Toggle checked={emailNotif} onChange={setEmailNotif} />
+                  <Toggle checked={emailNotif} label="Email reports" onChange={setEmailNotif} />
                 </SettingRow>
                 <SettingRow icon={Bell} label="Anomaly Alerts" desc="Notify when spikes exceed 30% MoM">
-                  <Toggle checked={reportNotif} onChange={setReportNotif} />
+                  <Toggle checked={reportNotif} label="Anomaly alerts" onChange={setReportNotif} />
                 </SettingRow>
               </div>
             </motion.div>
@@ -145,22 +192,22 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
-              className="rounded-2xl border border-slate-200/50 bg-white dark:border-zinc-800/50 dark:bg-zinc-900"
+              className="rounded-2xl border border-slate-200/50 bg-white"
             >
-              <div className="border-b border-slate-100 px-5 py-4 dark:border-zinc-800">
-                <p className="text-[13px] font-bold text-slate-900 dark:text-zinc-100">Integrations</p>
+              <div className="border-b border-slate-100 px-5 py-4">
+                <p className="text-[13px] font-bold text-slate-900">Integrations</p>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+              <div className="divide-y divide-slate-100">
                 <SettingRow icon={Key} label="Gemini AI Key" desc="For live AI extraction and validation">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-amber-500" />
-                    <span className="text-[12px] text-slate-500 dark:text-zinc-400">Not configured</span>
+                    <span className="text-[12px] text-slate-500">Not configured</span>
                   </div>
                 </SettingRow>
                 <SettingRow icon={Key} label="Climatiq API Key" desc="For live emission factor lookups">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-amber-500" />
-                    <span className="text-[12px] text-slate-500 dark:text-zinc-400">Not configured</span>
+                    <span className="text-[12px] text-slate-500">Not configured</span>
                   </div>
                 </SettingRow>
               </div>
@@ -170,15 +217,19 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.25 }}
-              className="rounded-2xl border border-rose-200/50 bg-white dark:border-rose-900/50 dark:bg-zinc-900"
+              className="rounded-2xl border border-rose-200/50 bg-white"
             >
-              <div className="border-b border-rose-100 px-5 py-4 dark:border-rose-900/30">
-                <p className="text-[13px] font-bold text-rose-600 dark:text-rose-400">Danger Zone</p>
+              <div className="border-b border-rose-100 px-5 py-4">
+                <p className="text-[13px] font-bold text-rose-600">Danger Zone</p>
               </div>
               <div className="px-5 py-4">
-                <button className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97] dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/20">
+                <button
+                  type="button"
+                  onClick={handleResetPreferences}
+                  className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97]"
+                >
                   <Trash className="h-3.5 w-3.5" />
-                  Reset Demo Data
+                  Reset Local Preferences
                 </button>
               </div>
             </motion.div>
@@ -186,10 +237,10 @@ export default function SettingsPage() {
             <div className="flex justify-end">
               <button
                 onClick={handleSave}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-slate-800 active:scale-[0.97] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-slate-800 active:scale-[0.97]"
               >
                 {saved ? (
-                  <><CheckCircle className="h-4 w-4" weight="fill" /> Saved</>
+                  <><CheckCircle className="h-4 w-4" /> Saved</>
                 ) : (
                   "Save Preferences"
                 )}
