@@ -26,7 +26,8 @@ const MACC_MEASURES = [
   { id: "ccs", name: "Carbon Capture (Pilot)", costPerTonne: 180, reduction: 12.0, source: "McKinsey", selected: false },
 ];
 
-interface TooltipProps { active?: boolean; payload?: Array<{ payload: Record<string, unknown> }> }
+interface TooltipPayload { name: string; costPerTonne: number; reduction: number; source: string }
+interface TooltipProps { active?: boolean; payload?: Array<{ payload: TooltipPayload }> }
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;

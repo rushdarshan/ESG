@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ACTION_MAP, calculateXP } from "@/lib/actions";
-import { getAIProvider } from "@/lib/ai/provider";
+import { getAIProvider } from "@/lib/ai/gemini";
 import { addRecord } from "@/lib/evidence/registry";
 
 // ── POST /api/actions ───────────────────────────────────────────

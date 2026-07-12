@@ -11,7 +11,8 @@ const SCOPE_DATA = [
 
 const TOTAL = SCOPE_DATA.reduce((sum, s) => sum + s.value, 0);
 
-interface TooltipProps { active?: boolean; payload?: Array<{ payload: Record<string, unknown> }> }
+interface TooltipPayload { name: string; value: number; confidence: number }
+interface TooltipProps { active?: boolean; payload?: Array<{ payload: TooltipPayload }> }
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
