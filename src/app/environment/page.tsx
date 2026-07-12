@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -33,6 +34,15 @@ const QUICK_STATS = [
 ];
 
 export default function EnvironmentPage() {
+  const [carbonMetrics, setCarbonMetrics] = useState(156);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => { if (d.carbonMetrics) setCarbonMetrics(d.carbonMetrics); })
+      .catch(() => {});
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px]">
