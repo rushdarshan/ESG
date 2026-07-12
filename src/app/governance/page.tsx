@@ -169,7 +169,7 @@ export default function GovernancePage() {
                 onClick={() =>
                   setExpandedFramework(expandedFramework === "GRI" ? "CSRD" : "GRI")
                 }
-                className="flex w-full items-center justify-between p-6"
+                className="flex w-full items-center justify-between p-6 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
@@ -261,7 +261,7 @@ export default function GovernancePage() {
                 onClick={() =>
                   setExpandedFramework(expandedFramework === "CSRD" ? "GRI" : "CSRD")
                 }
-                className="flex w-full items-center justify-between p-6"
+                className="flex w-full items-center justify-between p-6 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">

@@ -73,7 +73,7 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 * i }}
-      className={`rounded-2xl border border-slate-200/50 bg-white p-6 transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.06)] dark:border-zinc-800/50 dark:bg-zinc-900`}
+      className={`rounded-2xl border border-slate-200/50 bg-white p-6 transition-shadow hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.06)] active:scale-[0.99] dark:border-zinc-800/50 dark:bg-zinc-900`}
     >
       <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl ${COLORS[r.color]}`}>
         <r.icon className="h-5 w-5" />
@@ -83,7 +83,7 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
       <button
         onClick={handleGenerate}
         disabled={generating}
-        className={`mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all active:scale-[0.97] ${
+        className={`mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors active:scale-[0.97] ${
           done
             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
             : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"

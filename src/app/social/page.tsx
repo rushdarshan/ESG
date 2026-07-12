@@ -173,7 +173,7 @@ export default function SocialPage() {
                         selectedAction === action.id ? null : action.id
                       )
                     }
-                    className={`group flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all ${
+                    className={`group flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-colors active:scale-[0.97] ${
                       selectedAction === action.id
                         ? "border-emerald-300 bg-emerald-50 shadow-md"
                         : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"

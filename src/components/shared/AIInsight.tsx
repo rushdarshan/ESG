@@ -47,7 +47,7 @@ export function AIInsight({ title, message, type = "info" }: AIInsightProps) {
             </div>
             <button
               onClick={() => setDismissed(true)}
-              className="flex-shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/60 hover:text-slate-600"
+              className="flex-shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/60 hover:text-slate-600 active:scale-[0.9]"
             >
               <X className="h-3.5 w-3.5" />
             </button>

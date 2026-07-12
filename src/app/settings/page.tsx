@@ -176,7 +176,7 @@ export default function SettingsPage() {
                 <p className="text-[13px] font-bold text-rose-600 dark:text-rose-400">Danger Zone</p>
               </div>
               <div className="px-5 py-4">
-                <button className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-all hover:bg-rose-50 active:scale-[0.97] dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/20">
+                <button className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97] dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/20">
                   <Trash className="h-3.5 w-3.5" />
                   Reset Demo Data
                 </button>

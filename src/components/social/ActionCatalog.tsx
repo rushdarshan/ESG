@@ -27,14 +27,14 @@ export function ActionCatalog({ onSubmit }: Props) {
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         {ACTION_TYPES.map((action: ActionTypeDef) => (
-          <button
-            key={action.id}
-            onClick={() => setSelectedAction(action.id)}
-            className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-              selectedAction === action.id
-                ? "border-green-500 bg-green-50 shadow-md"
-                : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-            }`}
+              <button
+                key={action.id}
+                onClick={() => setSelectedAction(action.id)}
+                className={`flex flex-col items-center p-4 rounded-xl border-2 transition-colors active:scale-[0.97] ${
+                  selectedAction === action.id
+                    ? "border-green-500 bg-green-50 shadow-md"
+                    : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                }`}
           >
             <span className="text-3xl mb-2">{action.icon}</span>
             <span className="text-sm font-medium text-center">{action.name}</span>
@@ -52,7 +52,7 @@ export function ActionCatalog({ onSubmit }: Props) {
               <button
                 key={opt.type}
                 onClick={() => setSelectedEvidence(opt.type)}
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border active:scale-[0.97] ${
                   selectedEvidence === opt.type
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200 hover:border-gray-300"

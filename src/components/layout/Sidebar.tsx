@@ -65,11 +65,11 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
-                isActive
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-              }`}
+               className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+                 isActive
+                   ? "bg-emerald-50 text-emerald-700"
+                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+               } active:scale-[0.97]`}
             >
               {isActive && (
                 <motion.div

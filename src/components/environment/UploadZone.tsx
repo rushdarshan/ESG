@@ -160,7 +160,7 @@ export function UploadZone() {
                   )}
                   <button
                     onClick={() => removeFile(file.id)}
-                    className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white hover:text-slate-600"
+                    className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 active:scale-[0.9]"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>

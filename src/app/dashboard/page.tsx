@@ -166,7 +166,7 @@ export default function DashboardPage() {
               <motion.div key={mod.title} variants={FADE_UP}>
                 <Link
                   href={mod.href}
-                  className="group block rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)]"
+                  className="group block rounded-[2rem] border border-slate-200/50 bg-white p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] active:scale-[0.99]"
                 >
                   <div className="mb-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">

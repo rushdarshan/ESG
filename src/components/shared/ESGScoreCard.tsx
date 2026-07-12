@@ -78,7 +78,7 @@ export function ESGScoreCard({ label, score, change, color, delay = 0 }: ESGScor
               strokeDasharray={circumference}
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: delay + 0.3 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: delay + 0.3 }}
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">

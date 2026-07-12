@@ -19,12 +19,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-3">
             {/* Search */}
-            <button className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+            <button className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-[0.92]">
               <MagnifyingGlass className="h-4.5 w-4.5" />
             </button>
 
             {/* Notifications */}
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+            <button className="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-[0.92]">
               <Bell className="h-4.5 w-4.5" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-emerald-500" />
             </button>
