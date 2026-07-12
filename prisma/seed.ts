@@ -1,9 +1,174 @@
 import { PrismaClient } from "@prisma/client";
+import { HEALTHY_SCENARIO } from "../src/data/demo/greenforge-healthy/data";
+import { POOR_SCENARIO } from "../src/data/demo/greenforge-poor/data";
+import { computeHash, serializeContent } from "../src/lib/evidence/crypto";
 
 const prisma = new PrismaClient();
 
+type Scenario = typeof HEALTHY_SCENARIO;
+
+async function seedScenario(scenario: Scenario, label: string) {
+  console.log(`\n🌱 Seeding ${label} scenario...`);
+
+  // Create organization
+  const org = await prisma.organization.create({
+    data: {
+      name: scenario.organization.name,
+      industry: scenario.organization.industry,
+    },
+  });
+  console.log(`   Organization: ${org.name} (${org.id})`);
+
+  // Create departments
+  const deptMap = new Map<string, string>();
+  for (const deptName of scenario.departments) {
+    const dept = await prisma.department.create({
+      data: { name: deptName, organizationId: org.id },
+    });
+    deptMap.set(deptName, dept.id);
+  }
+  console.log(`   Departments: ${scenario.departments.join(", ")}`);
+
+  // Create employees
+  const empMap = new Map<string, string>();
+  for (const emp of scenario.employees) {
+    const departmentId = deptMap.get(emp.department)!;
+    const employee = await prisma.employee.create({
+      data: {
+        name: emp.name,
+        email: emp.email,
+        role: emp.role,
+        departmentId,
+        organizationId: org.id,
+      },
+    });
+    empMap.set(emp.email, employee.id);
+  }
+  console.log(`   Employees: ${scenario.employees.length}`);
+
+  // Create locations
+  for (const loc of scenario.locations) {
+    await prisma.location.create({
+      data: { name: loc.name, type: loc.type, organizationId: org.id },
+    });
+  }
+  console.log(`   Locations: ${scenario.locations.length}`);
+
+  // Create ESG scores
+  for (const score of scenario.esgScores) {
+    await prisma.eSGScore.create({
+      data: {
+        organizationId: org.id,
+        overall: score.overall,
+        environmental: score.environmental,
+        social: score.social,
+        governance: score.governance,
+        period: score.period,
+      },
+    });
+  }
+  console.log(`   ESG Scores: ${scenario.esgScores.length} periods`);
+
+  // Create metrics
+  let prevHash: string | null = null;
+  const metricRecords = [];
+  for (const metric of scenario.metrics) {
+    const m = await prisma.eSGMetric.create({
+      data: {
+        organizationId: org.id,
+        scope: metric.scope,
+        value: metric.value,
+        unit: metric.unit,
+        confidence: metric.confidence,
+        category: metric.category,
+        description: metric.description,
+        period: metric.period,
+      },
+    });
+    metricRecords.push(m);
+
+    // Create evidence record for each metric (hash chain)
+    const content = serializeContent({
+      metricId: m.id,
+      category: metric.category,
+      scope: metric.scope,
+      value: metric.value,
+      unit: metric.unit,
+      period: metric.period,
+      description: metric.description,
+    });
+    const contentHash = computeHash(content, prevHash);
+    const evidenceRecord = await prisma.evidenceRecord.create({
+      data: {
+        contentHash,
+        previousHash: prevHash,
+        source: "upload",
+        sourceId: m.id,
+        metricId: m.id,
+        content,
+      },
+    });
+    prevHash = evidenceRecord.contentHash;
+  }
+  console.log(`   Metrics: ${scenario.metrics.length} + evidence chain`);
+
+  // Create employee actions
+  let actionPrevHash = prevHash;
+  for (const action of scenario.actions) {
+    const employeeId = empMap.get(action.employee);
+    if (!employeeId) continue;
+
+    const employee = await prisma.employee.findUnique({ where: { id: employeeId }, include: { department: true } });
+    if (!employee) continue;
+
+    const a = await prisma.employeeAction.create({
+      data: {
+        actionType: action.actionType,
+        carbonSaved: action.carbonSaved,
+        xpAwarded: action.xpAwarded,
+        confidence: action.confidence,
+        evidenceType: action.evidenceType,
+        employeeId,
+        departmentId: employee.departmentId,
+        status: action.status,
+        notes: action.notes,
+      },
+    });
+
+    // Create evidence record for action (hash chain continues)
+    const content = serializeContent({
+      actionId: a.id,
+      actionType: action.actionType,
+      employeeId,
+      carbonSaved: action.carbonSaved,
+      xpAwarded: action.xpAwarded,
+      confidence: action.confidence,
+      evidenceType: action.evidenceType,
+    });
+    const contentHash = computeHash(content, actionPrevHash);
+    await prisma.evidenceRecord.create({
+      data: {
+        contentHash,
+        previousHash: actionPrevHash,
+        source: "action",
+        sourceId: a.id,
+        actionId: a.id,
+        content,
+      },
+    });
+    actionPrevHash = contentHash;
+  }
+  console.log(`   Actions: ${scenario.actions.length} + evidence chain`);
+
+  return org;
+}
+
 async function main() {
+  console.log("🚀 EcoSphere Demo Data Pack — U12");
+  console.log("═══════════════════════════════════");
+
   // Clean existing data
+  console.log("\n🧹 Cleaning existing data...");
   await prisma.evidenceRecord.deleteMany();
   await prisma.employeeAction.deleteMany();
   await prisma.eSGMetric.deleteMany();
@@ -13,119 +178,30 @@ async function main() {
   await prisma.location.deleteMany();
   await prisma.organization.deleteMany();
 
-  // Create organization
-  const org = await prisma.organization.create({
-    data: {
-      name: "GreenForge Industries",
-      industry: "Manufacturing",
-    },
+  // Seed healthy scenario
+  const healthyOrg = await seedScenario(HEALTHY_SCENARIO, "Healthy (Score ~82)");
+
+  // Seed poor scenario
+  const poorOrg = await seedScenario(POOR_SCENARIO, "Poor (Score ~41)");
+
+  // Summary
+  const healthyScore = await prisma.eSGScore.findFirst({
+    where: { organizationId: healthyOrg.id, period: "2024-Q4" },
+  });
+  const poorScore = await prisma.eSGScore.findFirst({
+    where: { organizationId: poorOrg.id, period: "2024-Q4" },
   });
 
-  // Create departments
-  const ops = await prisma.department.create({
-    data: { name: "Operations", organizationId: org.id },
-  });
-  const hr = await prisma.department.create({
-    data: { name: "Human Resources", organizationId: org.id },
-  });
-  const finance = await prisma.department.create({
-    data: { name: "Finance", organizationId: org.id },
-  });
-
-  // Create demo employees
-  await prisma.employee.createMany({
-    data: [
-      {
-        name: "Alex Rivera",
-        email: "alex@greenforge.com",
-        role: "sustainability_manager",
-        departmentId: ops.id,
-        organizationId: org.id,
-      },
-      {
-        name: "Sam Chen",
-        email: "sam@greenforge.com",
-        role: "employee",
-        departmentId: hr.id,
-        organizationId: org.id,
-      },
-      {
-        name: "Jordan Patel",
-        email: "jordan@greenforge.com",
-        role: "cfo",
-        departmentId: finance.id,
-        organizationId: org.id,
-      },
-    ],
-  });
-
-  // Create locations
-  await prisma.location.createMany({
-    data: [
-      { name: "HQ — Portland, OR", type: "office", organizationId: org.id },
-      {
-        name: "Plant A — Salem, OR",
-        type: "manufacturing",
-        organizationId: org.id,
-      },
-    ],
-  });
-
-  // Seed baseline ESG scores
-  await prisma.eSGScore.create({
-    data: {
-      organizationId: org.id,
-      overall: 82,
-      environmental: 78,
-      social: 85,
-      governance: 83,
-      period: "2024-Q4",
-    },
-  });
-
-  // Seed some baseline metrics
-  await prisma.eSGMetric.createMany({
-    data: [
-      {
-        organizationId: org.id,
-        scope: 1,
-        value: 45.2,
-        unit: "tCO2e",
-        confidence: 0.95,
-        category: "fuel",
-        description: "Fleet diesel consumption",
-        period: "2024-Q4",
-      },
-      {
-        organizationId: org.id,
-        scope: 2,
-        value: 120.5,
-        unit: "tCO2e",
-        confidence: 0.92,
-        category: "electricity",
-        description: "Grid electricity — HQ + Plant A",
-        period: "2024-Q4",
-      },
-      {
-        organizationId: org.id,
-        scope: 3,
-        value: 88.3,
-        unit: "tCO2e",
-        confidence: 0.78,
-        category: "travel",
-        description: "Business travel — flights + ground",
-        period: "2024-Q4",
-      },
-    ],
-  });
-
-  console.log("✅ Seed complete:");
-  console.log(`   Organization: ${org.name} (${org.id})`);
-  console.log(`   Departments:  Operations, HR, Finance`);
-  console.log(`   Employees:    Alex (sustainability_manager), Sam (employee), Jordan (cfo)`);
-  console.log(`   Locations:    HQ Portland, Plant A Salem`);
-  console.log(`   ESG Score:    82 overall (E:78 / S:85 / G:83)`);
-  console.log(`   Metrics:      3 baseline (Scope 1/2/3)`);
+  console.log("\n═══════════════════════════════════");
+  console.log("✅ Seed complete!");
+  console.log("\n📊 Scenario Summary:");
+  console.log("┌─────────────────────────────────────────────────────────────┐");
+  console.log(`│ Healthy: ${healthyOrg.name} — Score ${healthyScore?.overall ?? "?"} (E:${healthyScore?.environmental ?? "?"} / S:${healthyScore?.social ?? "?"} / G:${healthyScore?.governance ?? "?"}) │`);
+  console.log(`│ Poor:    ${poorOrg.name} — Score ${poorScore?.overall ?? "?"} (E:${poorScore?.environmental ?? "?"} / S:${poorScore?.social ?? "?"} / G:${poorScore?.governance ?? "?"})     │`);
+  console.log("└─────────────────────────────────────────────────────────────┘");
+  console.log("\n🔗 IDs (for API testing):");
+  console.log(`   Healthy org: ${healthyOrg.id}`);
+  console.log(`   Poor org:    ${poorOrg.id}`);
 }
 
 main()
