@@ -14,7 +14,7 @@ import {
   Trophy,
   Target,
   Warning,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -103,7 +103,9 @@ export default function DashboardPage() {
           if (d.summaryStats)
             setSummaryStats((prev) =>
               prev.map((s) => {
-                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
                 return m ? { ...s, value: m.value, change: m.change } : s;
               }),
             );
@@ -116,7 +118,9 @@ export default function DashboardPage() {
           if (d.summaryStats)
             setSummaryStats((prev) =>
               prev.map((s) => {
-                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
                 return m ? { ...s, value: m.value, change: m.change } : s;
               }),
             );
@@ -135,7 +139,9 @@ export default function DashboardPage() {
           if (d.summaryStats)
             setSummaryStats((prev) =>
               prev.map((s) => {
-                const m = d.summaryStats.find((x: any) => x.label === s.label);
+                const m = d.summaryStats.find(
+                  (x: { label: string; value: string; change?: string }) => x.label === s.label
+                );
                 return m ? { ...s, value: m.value, change: m.change } : s;
               }),
             );
@@ -237,7 +243,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <Icon className="h-5 w-5 text-slate-400" />
                   <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-3 w-3" weight="bold" />
+                    <ArrowUpRight className="h-3 w-3" />
                     {stat.change}
                   </span>
                 </div>
@@ -386,7 +392,7 @@ export default function DashboardPage() {
             <div className="mt-5 space-y-2">
               {complianceGaps.map((gap, i) => (
                 <div key={i} className="flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2">
-                  <Warning className="h-3.5 w-3.5 text-rose-500" weight="fill" />
+                  <Warning className="h-3.5 w-3.5 text-rose-500" />
                   <span className="text-[11px] text-rose-700">{gap.label}</span>
                 </div>
               ))}

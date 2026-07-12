@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   ChartLineUp,
   Spinner,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -62,8 +62,25 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const res = await fetch("/api/reports", { method: "POST", body: JSON.stringify({ type: r.id }), headers: { "Content-Type": "application/json" } });
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        body: JSON.stringify({ type: r.id }),
+        headers: { "Content-Type": "application/json" }
+      });
       if (!res.ok) throw new Error("API failed");
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `EcoSphere_${r.id}_Report.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      if (link.parentNode) {
+        link.parentNode.removeChild(link);
+      }
+      window.URL.revokeObjectURL(url);
+
       setGenerating(false);
       setDone(true);
       setTimeout(() => setDone(false), 3000);
@@ -100,7 +117,7 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
         {generating ? (
           <><Spinner className="h-3.5 w-3.5 animate-spin" /> Generating...</>
         ) : done ? (
-          <><CheckCircle className="h-3.5 w-3.5" weight="fill" /> Generated</>
+          <><CheckCircle className="h-3.5 w-3.5" /> Generated</>
         ) : (
           <><FileArrowDown className="h-3.5 w-3.5" /> Generate ({r.estimate})</>
         )}
@@ -151,7 +168,7 @@ export default function ReportsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 text-[12px] text-emerald-600">
-                      <CheckCircle className="h-3 w-3" weight="fill" />
+                      <CheckCircle className="h-3 w-3" />
                       {h.status}
                     </span>
                     <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">

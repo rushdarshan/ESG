@@ -14,7 +14,7 @@ import {
   Download,
   CaretDown,
   CaretUp,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -282,7 +282,6 @@ export default function GovernancePage() {
                             >
                               <Icon
                                 className={`h-3.5 w-3.5 ${cfg.color}`}
-                                weight="fill"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -379,7 +378,6 @@ export default function GovernancePage() {
                             >
                               <Icon
                                 className={`h-3.5 w-3.5 ${cfg.color}`}
-                                weight="fill"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -419,7 +417,6 @@ export default function GovernancePage() {
                 <div className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2 py-1">
                   <CheckCircle
                     className="h-3 w-3 text-violet-500"
-                    weight="fill"
                   />
                   <span className="text-[10px] font-medium text-violet-600">
                     Verified

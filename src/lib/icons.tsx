@@ -1,0 +1,54 @@
+import { Icon } from "@iconify/react";
+import type { IconProps } from "@iconify/react";
+
+function I(icon: string) {
+  return (props: Partial<IconProps>) => <Icon icon={icon} {...props} />;
+}
+
+export const ArrowRight = I("lucide:arrow-right");
+export const ArrowUpRight = I("lucide:arrow-up-right");
+export const Bell = I("lucide:bell");
+export const Building = I("lucide:building-2");
+export const CalendarBlank = I("lucide:calendar");
+export const CaretDown = I("lucide:chevron-down");
+export const CaretUp = I("lucide:chevron-up");
+export const ChartBar = I("lucide:bar-chart-3");
+export const ChartLineUp = I("lucide:chart-line");
+export const CheckCircle = I("lucide:check-circle-2");
+export const Clock = I("lucide:clock");
+export const Database = I("lucide:database");
+export const Download = I("lucide:download");
+export const Drop = I("lucide:droplet");
+export const FileArrowDown = I("lucide:file-down");
+export const FileArrowUp = I("lucide:file-up");
+export const FileCsv = I("lucide:file-spreadsheet");
+export const FileImage = I("lucide:file-image");
+export const FilePdf = I("lucide:file-text");
+export const FileText = I("lucide:file-text");
+export const Flame = I("lucide:flame");
+export const GearSix = I("lucide:settings");
+export const Gift = I("lucide:gift");
+export const Globe = I("lucide:globe");
+export const Hash = I("lucide:hash");
+export const House = I("lucide:home");
+export const Key = I("lucide:key");
+export const Leaf = I("lucide:leaf");
+export const Lightning = I("lucide:zap");
+export const MagnifyingGlass = I("lucide:search");
+export const Palette = I("lucide:palette");
+export const Plus = I("lucide:plus");
+export const RocketLaunch = I("lucide:rocket");
+export const SealCheck = I("lucide:badge-check");
+export const ShieldCheck = I("lucide:shield-check");
+export const Sparkle = I("lucide:sparkles");
+export const Spinner = I("lucide:loader-circle");
+export const Star = I("lucide:star");
+export const Target = I("lucide:crosshair");
+export const Trash = I("lucide:trash-2");
+export const TreeEvergreen = I("lucide:trees");
+export const TrendUp = I("lucide:trending-up");
+export const Trophy = I("lucide:trophy");
+export const Users = I("lucide:users");
+export const Warning = I("lucide:triangle-alert");
+export const X = I("lucide:x");
+export const XCircle = I("lucide:x-circle");

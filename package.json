@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@iconify/react": "^6.0.2",
     "@phosphor-icons/react": "^2.1.7",
     "@prisma/client": "^5.14.0",
     "@react-pdf/renderer": "^4.5.1",

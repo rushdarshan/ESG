@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   GearSix,
@@ -11,7 +11,7 @@ import {
   Palette,
   Globe,
   CheckCircle,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -58,12 +58,43 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export default function SettingsPage() {
+  const [organizationName, setOrganizationName] = useState("GreenForge Industries");
+  const [industry, setIndustry] = useState("Industrial Manufacturing");
   const [emailNotif, setEmailNotif] = useState(true);
   const [reportNotif, setReportNotif] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    const savedName = localStorage.getItem("ecosphere_org_name");
+    const savedInd = localStorage.getItem("ecosphere_industry");
+    if (savedName) setOrganizationName(savedName);
+    if (savedInd) setIndustry(savedInd);
+
+    const savedTheme = localStorage.getItem("theme");
+    const isDark = savedTheme === "dark";
+    setDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const handleThemeChange = (val: boolean) => {
+    setDarkMode(val);
+    if (val) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
+
   const handleSave = () => {
+    localStorage.setItem("ecosphere_org_name", organizationName);
+    localStorage.setItem("ecosphere_industry", industry);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -100,22 +131,27 @@ export default function SettingsPage() {
               <div className="divide-y divide-slate-100">
                 <SettingRow icon={Building} label="Organization Name" desc="Shown on reports and dashboards">
                   <input
-                    defaultValue="GreenForge Industries"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
                     className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500"
                   />
                 </SettingRow>
                 <SettingRow icon={Globe} label="Industry" desc="Used for benchmark comparisons">
-                  <select className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500">
-                    <option>Industrial Manufacturing</option>
-                    <option>Technology</option>
-                    <option>Energy</option>
-                    <option>Transportation</option>
+                  <select
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    className="w-48 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-500"
+                  >
+                    <option value="Industrial Manufacturing">Industrial Manufacturing</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Energy">Energy</option>
+                    <option value="Transportation">Transportation</option>
                   </select>
                 </SettingRow>
                 <SettingRow icon={Palette} label="Theme" desc="Preview dark color scheme">
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] text-slate-500">Off</span>
-                    <Toggle checked={darkMode} onChange={setDarkMode} />
+                    <Toggle checked={darkMode} onChange={handleThemeChange} />
                     <span className="text-[12px] text-slate-500">On</span>
                   </div>
                 </SettingRow>
@@ -189,7 +225,7 @@ export default function SettingsPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-slate-800 active:scale-[0.97]"
               >
                 {saved ? (
-                  <><CheckCircle className="h-4 w-4" weight="fill" /> Saved</>
+                  <><CheckCircle className="h-4 w-4" /> Saved</>
                 ) : (
                   "Save Preferences"
                 )}

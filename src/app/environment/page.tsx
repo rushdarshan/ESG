@@ -7,7 +7,7 @@ import {
   Lightning,
   Drop,
   Trash,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { UploadZone } from "@/components/environment/UploadZone";
 import { ScopeBreakdown } from "@/components/environment/ScopeBreakdown";
@@ -97,7 +97,7 @@ export default function EnvironmentPage() {
                 <div className="flex items-center justify-between">
                   <Icon className={`h-5 w-5 ${stat.color}`} />
                   <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-3 w-3" weight="bold" />
+                    <ArrowUpRight className="h-3 w-3" />
                     {stat.change}
                   </span>
                 </div>

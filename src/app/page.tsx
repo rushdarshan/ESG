@@ -17,7 +17,7 @@ import {
   MagnifyingGlass,
   FileText,
   RocketLaunch,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 
 function fadeUp(r: boolean, d = 0) {
   return {
@@ -114,11 +114,11 @@ function HeroSection({ r }: { r: boolean }) {
               />
             </div>
             <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
-              <SealCheck className="h-4 w-4 text-emerald-500" weight="fill" />
+              <SealCheck className="h-4 w-4 text-emerald-500" />
               ESG Score: 82
             </div>
             <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
-              <Lightning className="h-4 w-4 text-amber-500" weight="fill" />
+              <Lightning className="h-4 w-4 text-amber-500" />
               AI Active
             </div>
           </motion.div>

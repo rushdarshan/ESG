@@ -9,7 +9,7 @@ import {
   ArrowRight,
   SealCheck,
   Gift,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 
@@ -70,7 +70,7 @@ export default function RewardsPage() {
                     className={`flex flex-col items-center gap-2 rounded-xl p-3 text-center ${b.earned ? "bg-slate-50 dark:bg-zinc-800" : "bg-slate-50/50 opacity-40 dark:bg-zinc-800/50"}`}
                   >
                     <div className={`${b.earned ? b.color : "text-slate-300 dark:text-zinc-600"}`}>
-                      <b.icon className="h-6 w-6" weight={b.earned ? "fill" : "regular"} />
+                      <b.icon className="h-6 w-6" />
                     </div>
                     <p className="text-[11px] font-medium text-slate-700 dark:text-zinc-300">{b.name}</p>
                   </motion.div>

@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { CheckCircle, Plus } from "@phosphor-icons/react";
+import { CheckCircle, Plus } from "@/lib/icons";
 
 interface MACCMeasure {
   id: string;
@@ -167,7 +167,7 @@ export function MACCCurve() {
             }`}
           >
             {m.selected ? (
-              <CheckCircle className="h-4 w-4 flex-shrink-0 text-emerald-500" weight="fill" />
+              <CheckCircle className="h-4 w-4 flex-shrink-0 text-emerald-500" />
             ) : (
               <Plus className="h-4 w-4 flex-shrink-0 text-slate-300" />
             )}

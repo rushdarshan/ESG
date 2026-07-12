@@ -13,7 +13,7 @@ import {
   Trophy,
   GearSix,
   Leaf,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: House },
@@ -36,7 +36,7 @@ export function Sidebar() {
       {/* Logo */}
       <Link href="/dashboard" className="mb-10 flex items-center gap-2.5 px-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600">
-          <Leaf className="h-5 w-5 text-white" weight="bold" />
+          <Leaf className="h-5 w-5 text-white" />
         </div>
         <span className="hidden text-[15px] font-semibold tracking-tight text-slate-900 lg:block">
           EcoSphere
@@ -82,7 +82,6 @@ export function Sidebar() {
                 className={`relative z-10 h-5 w-5 flex-shrink-0 ${
                   isActive ? "text-emerald-600" : ""
                 }`}
-                weight={isActive ? "fill" : "regular"}
               />
               <span className="relative z-10 hidden lg:block">{label}</span>
             </Link>

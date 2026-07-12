@@ -2,7 +2,7 @@
 
 import { Sidebar } from "./Sidebar";
 import { ESGSwitcher } from "./ESGSwitcher";
-import { Bell, MagnifyingGlass } from "@phosphor-icons/react";
+import { Bell, MagnifyingGlass } from "@/lib/icons";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (

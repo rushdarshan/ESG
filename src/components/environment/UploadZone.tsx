@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Spinner,
   X,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 
 interface UploadedFile {
   id: string;
@@ -194,7 +194,6 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
                     <div className="flex items-center gap-1.5">
                       <CheckCircle
                         className="h-4 w-4 text-emerald-500"
-                        weight="fill"
                       />
                       <span className="text-[11px] font-medium text-emerald-600">
                         {(file.confidence! * 100).toFixed(0)}% confidence

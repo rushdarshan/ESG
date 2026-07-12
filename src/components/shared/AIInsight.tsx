@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkle, X } from "@phosphor-icons/react";
+import { Sparkle, X } from "@/lib/icons";
 
 interface AIInsightProps {
   title: string;
@@ -37,7 +37,7 @@ export function AIInsight({ title, message, type = "info" }: AIInsightProps) {
         >
           <div className="flex items-start gap-3 p-4">
             <div className={`mt-0.5 flex-shrink-0 ${ICON_STYLES[type]}`}>
-              <Sparkle className="h-4 w-4" weight="fill" />
+              <Sparkle className="h-4 w-4" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-semibold text-slate-800">{title}</p>

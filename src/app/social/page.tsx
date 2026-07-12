@@ -8,7 +8,7 @@ import {
   Target,
   Users,
   CheckCircle,
-} from "@phosphor-icons/react";
+} from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
 import { ACTION_CATALOG, type ActionType } from "@/types";
@@ -370,7 +370,6 @@ export default function SocialPage() {
                     {badge.earned && (
                       <CheckCircle
                         className="h-4 w-4 flex-shrink-0 text-emerald-500"
-                        weight="fill"
                       />
                     )}
                   </motion.div>
