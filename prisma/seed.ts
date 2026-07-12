@@ -98,7 +98,7 @@ async function seedScenario(scenario: Scenario, label: string) {
       description: metric.description,
     });
     const contentHash = computeHash(content, prevHash);
-    const evidenceRecord = await prisma.evidenceRecord.create({
+    prevHash = (await prisma.evidenceRecord.create({
       data: {
         contentHash,
         previousHash: prevHash,
@@ -107,8 +107,7 @@ async function seedScenario(scenario: Scenario, label: string) {
         metricId: m.id,
         content,
       },
-    });
-    prevHash = evidenceRecord.contentHash;
+    })).contentHash;
   }
   console.log(`   Metrics: ${scenario.metrics.length} + evidence chain`);
 
