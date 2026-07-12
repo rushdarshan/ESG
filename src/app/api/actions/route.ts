@@ -1,34 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ACTION_MAP, calculateXP } from "@/lib/actions";
-// TODO: import { addRecord } from "@/lib/evidence/registry"; // U6
-// TODO: import { getAIProvider } from "@/lib/ai/provider"; // U2 — uncomment when available
-
-// ── Local AI fallback (until U2 is merged) ──────────────────────
-
-async function validateActionLocal(
-  actionType: string,
-  _evidenceType: string,
-  _evidenceData: string
-): Promise<{ confidence: number; carbonSaved: number; explanation: string }> {
-  const actionDef = ACTION_MAP[actionType];
-  const baseCarbon = actionDef?.baseCarbon ?? 1.0;
-
-  // Simple heuristic: self_report = 70%, photo = 90%, receipt = 85%, certificate = 95%, gps = 92%
-  const confidenceMap: Record<string, number> = {
-    photo: 90,
-    receipt: 85,
-    certificate: 95,
-    gps: 92,
-    self_report: 70,
-  };
-
-  return {
-    confidence: 85,
-    carbonSaved: baseCarbon,
-    explanation: `Validated locally. Base carbon estimate: ${baseCarbon} kg CO₂e.`,
-  };
-}
+import { getAIProvider } from "@/lib/ai/provider";
+import { addRecord } from "@/lib/evidence/registry";
 
 // ── POST /api/actions ───────────────────────────────────────────
 
@@ -78,31 +52,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    // AI validation — use U2 provider when available, local fallback otherwise
-    let validation: { confidence: number; carbonSaved: number; explanation: string };
-    try {
-      // TODO: const ai = getAIProvider();
-      // TODO: validation = await ai.validateAction(actionType, evidence.type, evidence.data);
-      validation = await validateActionLocal(actionType, evidence.type, evidence.data);
-    } catch {
-      validation = await validateActionLocal(actionType, evidence.type, evidence.data);
-    }
+    // AI validation via U2 provider (Gemini or mock fallback)
+    const ai = getAIProvider();
+    const evidenceDescription = `${evidence.type}: ${evidence.data || "No description provided"}`;
+    const aiResult = await ai.validateAction(actionType, evidenceDescription);
+
+    // AI returns confidence as 0.0–1.0; normalize to 0–100 for internal logic
+    const confidencePercent = Math.round(aiResult.confidence * 100);
 
     // Flag low-confidence submissions
-    if (validation.confidence < 50) {
+    if (confidencePercent < 50) {
       return NextResponse.json({
         id: null,
         xp: 0,
         carbonSaved: 0,
-        confidence: validation.confidence,
+        confidence: aiResult.confidence,
         status: "pending",
-        explanation: validation.explanation,
+        explanation: aiResult.reasons.join("; "),
       });
     }
 
     // Calculate XP with confidence bonus
-    const xpAwarded = calculateXP(actionDef.baseXP, validation.confidence);
-    const carbonSaved = validation.carbonSaved || actionDef.baseCarbon;
+    const xpAwarded = calculateXP(actionDef.baseXP, confidencePercent);
+    const carbonSaved = aiResult.carbonSaved || actionDef.baseCarbon;
 
     // Create action record — matches Anurag's EmployeeAction schema exactly
     const action = await db.employeeAction.create({
@@ -110,31 +82,41 @@ export async function POST(request: NextRequest) {
         actionType,
         carbonSaved,
         xpAwarded,
-        confidence: validation.confidence / 100,
+        confidence: aiResult.confidence,
         evidenceType: evidence.type,
         employeeId,
         departmentId: employee.departmentId,
-        status: "approved",
-        notes: validation.explanation,
+        status: aiResult.valid ? "approved" : "pending",
+        notes: aiResult.reasons.join("; "),
       },
     });
 
-    // TODO: Write to Evidence Registry (U6) — uncomment after U6 is done
-    // await addRecord({
-    //   organizationId: employee.organizationId,
-    //   content: { actionId: action.id, actionType, employeeId, carbonSaved, confidence: validation.confidence, xpAwarded, evidenceType: evidence.type },
-    //   source: "action",
-    //   sourceId: action.id,
-    //   actionId: action.id,
-    // });
+    // Write to Evidence Registry (U6) — hash chain
+    await addRecord({
+      source: "action",
+      sourceId: action.id,
+      actionId: action.id,
+      content: {
+        actionId: action.id,
+        actionType,
+        employeeId,
+        carbonSaved,
+        confidence: aiResult.confidence,
+        xpAwarded,
+        evidenceType: evidence.type,
+        evidenceData: evidence.data,
+        valid: aiResult.valid,
+        reasons: aiResult.reasons,
+      },
+    });
 
     return NextResponse.json({
       id: action.id,
       xp: xpAwarded,
       carbonSaved,
-      confidence: validation.confidence,
+      confidence: aiResult.confidence,
       status: action.status,
-      explanation: validation.explanation,
+      explanation: aiResult.reasons.join("; "),
     });
   } catch (error) {
     console.error("Action submission error:", error);
