@@ -43,15 +43,15 @@ function mockValidateAction(
 ): ActionValidation {
   const carbonMap: Record<string, number> = {
     bike_commute: 8.2,
+    walking: 6.5,
+    public_transport: 5.1,
+    carpool: 4.3,
+    work_from_home: 3.2,
     recycling: 2.1,
-    reusable_bag: 0.5,
-    meatless_meal: 3.4,
-    carpool: 5.7,
-    remote_work: 4.8,
-    solar_usage: 12.0,
     tree_planting: 21.0,
-    energy_audit: 15.0,
-    waste_reduction: 3.0,
+    csr_volunteering: 1.5,
+    energy_saving: 1.0,
+    sustainability_training: 0.5,
   };
 
   return {
