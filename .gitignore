@@ -48,3 +48,5 @@ next-env.d.ts
 qa-artifacts/
 qa-server.*.log
 scripts/qa-*
+
+.opencode/

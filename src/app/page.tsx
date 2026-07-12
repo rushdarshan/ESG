@@ -1,333 +1,185 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
+  ArrowRight,
+  ArrowUpRight,
+  ChartLineUp,
+  CheckCircle,
+  FileArrowUp,
+  FileText,
+  Hash,
+  ShieldCheck,
+  Sparkle,
   TreeEvergreen,
   Users,
-  ShieldCheck,
-  ArrowRight,
-  Sparkle,
-  ChartLineUp,
-  SealCheck,
-  Lightning,
-  Globe,
-  MagnifyingGlass,
-  FileText,
-  RocketLaunch,
 } from "@/lib/icons";
 
-function fadeUp(r: boolean, d = 0) {
-  return {
-    initial: r ? {} : { opacity: 0, y: 24 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.3 },
-    transition: { duration: 0.6, delay: d, ease: [0.16, 1, 0.3, 1] },
-  };
+const PILLARS = [
+  {
+    kicker: "01 / Environment",
+    title: "Turn source documents into a carbon baseline.",
+    copy: "Extract emissions from the records your business already produces, then see every number in its Scope 1, 2, or 3 context.",
+    href: "/environment",
+    action: "Measure carbon",
+    icon: TreeEvergreen,
+    panel: "bg-[#dcebc7] text-[#17341f]",
+    iconPanel: "bg-[#2e6b46] text-[#f1f7e9]",
+    detail: "Utility bill → Scope 2 metric",
+  },
+  {
+    kicker: "02 / Social",
+    title: "Make sustainable action visible and worth repeating.",
+    copy: "Give employees a clear action hub, evidence-based validation, and a shared sense of momentum across teams.",
+    href: "/social",
+    action: "Engage people",
+    icon: Users,
+    panel: "bg-[#dce9f6] text-[#173044]",
+    iconPanel: "bg-[#28628e] text-[#eef7ff]",
+    detail: "Evidence → XP → shared progress",
+  },
+  {
+    kicker: "03 / Governance",
+    title: "Make every claim defensible before it reaches the board.",
+    copy: "Link evidence through a tamper-evident chain, identify disclosure gaps, and generate reports with a transparent trail.",
+    href: "/governance",
+    action: "Prove compliance",
+    icon: ShieldCheck,
+    panel: "bg-[#e8def4] text-[#392451]",
+    iconPanel: "bg-[#69408d] text-[#faf4ff]",
+    detail: "Hash chain → cited report",
+  },
+];
+
+const PROOF_STEPS = [
+  { number: "01", label: "Capture", detail: "Bills, invoices, fleet logs", icon: FileArrowUp, tone: "text-[#b7dc85]" },
+  { number: "02", label: "Structure", detail: "Scopes, factors, confidence", icon: Sparkle, tone: "text-[#8fc4ec]" },
+  { number: "03", label: "Connect", detail: "Actions and evidence", icon: Hash, tone: "text-[#c9a9e7]" },
+  { number: "04", label: "Report", detail: "GRI and CSRD ready", icon: FileText, tone: "text-[#f6d382]" },
+];
+
+function useHydratedReducedMotion() {
+  const preference = useReducedMotion() ?? false;
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setReduced(preference));
+    return () => cancelAnimationFrame(frame);
+  }, [preference]);
+
+  return reduced;
 }
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b px-6 text-sm transition-colors lg:px-10 ${scrolled
-        ? "border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-zinc-800/60 dark:bg-zinc-950/80"
-        : "border-transparent bg-transparent"
-        }`}
+      className={`fixed inset-x-0 top-0 z-50 flex h-[72px] items-center justify-between px-5 transition-colors sm:px-8 lg:px-12 ${scrolled ? "border-b border-[#d8dfd3] bg-[#f4f6ef]/95 backdrop-blur" : "bg-transparent"}`}
     >
-      <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900 dark:text-zinc-100">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
-          E
-        </span>
-        <span>EcoSphere</span>
+      <Link href="/" className="flex items-center gap-2.5 text-[#12291a]" aria-label="EcoSphere home">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#183a27] text-[12px] font-bold text-[#eef4e7]">E</span>
+        <span className="text-[15px] font-semibold tracking-[-0.03em]">EcoSphere</span>
       </Link>
-      <div className="hidden items-center gap-8 text-slate-600 dark:text-zinc-400 md:flex">
-        <Link href="/dashboard" className="transition-colors hover:text-emerald-600">Dashboard</Link>
-        <Link href="/environment" className="transition-colors hover:text-emerald-600">Environment</Link>
-        <Link href="/social" className="transition-colors hover:text-emerald-600">Social</Link>
-        <Link href="/governance" className="transition-colors hover:text-emerald-600">Governance</Link>
+      <div className="hidden items-center gap-7 text-[13px] font-medium text-[#526059] md:flex">
+        <Link href="/environment" className="transition-colors hover:text-[#183a27]">Measure</Link>
+        <Link href="/social" className="transition-colors hover:text-[#183a27]">Engage</Link>
+        <Link href="/governance" className="transition-colors hover:text-[#183a27]">Assure</Link>
       </div>
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-all hover:bg-emerald-700 active:scale-[0.97]"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#183a27] px-4 text-[13px] font-semibold text-[#f4f6ef] transition-colors hover:bg-[#29563b]"
       >
-        Launch App
-        <ArrowRight className="h-3.5 w-3.5" />
+        Open workspace <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </nav>
   );
 }
 
-function HeroSection({ r }: { r: boolean }) {
+function Hero({ reduced }: { reduced: boolean }) {
   return (
-    <section className="relative overflow-hidden pt-28 md:pt-32">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
-          <motion.div {...fadeUp(r)}>
-            <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-none tracking-tighter text-slate-900 dark:text-zinc-100">
-              Measure. Engage.
-              <br />
-              <span className="text-emerald-600 dark:text-emerald-400">Prove.</span>
-            </h1>
-            <p className="mt-5 max-w-[48ch] text-[17px] leading-relaxed text-slate-600 dark:text-zinc-400">
-              From carbon measurement to employee engagement to audit-ready compliance reports. One unified platform for your entire ESG program.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-[15px] font-medium text-white transition-all hover:bg-emerald-700 active:scale-[0.97]"
-              >
-                Launch Dashboard
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/governance"
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-medium text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 active:scale-[0.97] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-              >
-                View Reports
-              </Link>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={r ? {} : { opacity: 0, x: 40 }}
-            animate={r ? {} : { opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
-          >
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-800">
-              <Image
-                src="https://picsum.photos/seed/ecosphere-hero/800/600"
-                alt="Sustainable office and nature"
-                width={800}
-                height={600}
-                className="h-full w-full object-cover"
-                priority
-                unoptimized
-              />
-            </div>
-            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
-              <SealCheck className="h-4 w-4 text-emerald-500" />
-              ESG Score: 82
-            </div>
-            <div className="absolute -right-3 -top-3 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
-              <Lightning className="h-4 w-4 text-amber-500" />
-              AI Active
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TrustedBySection() {
-  const logos = [
-    { name: "SustainCorp", color: "#059669" },
-    { name: "GreenGrid", color: "#3b82f6" },
-    { name: "EcoFirst", color: "#8b5cf6" },
-    { name: "CarbonZero", color: "#0891b2" },
-    { name: "FutureFuel", color: "#d97706" },
-  ];
-
-  return (
-    <section className="py-20 md:py-24">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <p className="mb-10 text-center text-[13px] font-medium uppercase tracking-[0.15em] text-slate-400 dark:text-zinc-500">
-          Trusted by
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-          {logos.map((l) => (
-            <div key={l.name} className="flex items-center gap-2.5">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="flex-shrink-0">
-                <rect width="32" height="32" rx="8" fill={l.color} />
-                <text x="16" y="20" textAnchor="middle" fill="white" fontSize="14" fontWeight="700" fontFamily="system-ui">{l.name.charAt(0)}</text>
-              </svg>
-              <span className="text-[15px] font-semibold text-slate-700 dark:text-zinc-300">{l.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const PILLARS = [
-  { id: "environmental", icon: TreeEvergreen, title: "Environmental", desc: "Upload utility bills, fleet records, and invoices. AI extracts carbon data, maps to Scope 1/2/3, and builds your full emissions baseline.", color: "emerald", features: ["AI document extraction", "Scope 1/2/3 breakdown", "MACC abatement curve", "SBTi trajectory tracking"], href: "/environment" },
-  { id: "social", icon: Users, title: "Social", desc: "Empower employees with 10 sustainability actions. AI validates evidence, awards XP, and badges drive engagement.", color: "blue", features: ["10 action types", "AI evidence validation", "XP and badge system", "Department leaderboards"], href: "/social" },
-  { id: "governance", icon: ShieldCheck, title: "Governance", desc: "Tamper-proof evidence registry with SHA-256 hash chain. Generate GRI/CSRD compliant reports with one click.", color: "violet", features: ["SHA-256 evidence chain", "GRI and CSRD compliance", "Board-ready PDF reports", "Anomaly spike detection"], href: "/governance" },
-];
-
-function PillarsSection({ r }: { r: boolean }) {
-  return (
-    <section className="py-20 md:py-28">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <motion.div {...fadeUp(r)} className="mb-14 text-center">
-          <p className="text-[11px] font-mono font-medium uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400">
-            Three pillars
-          </p>
-          <h2 className="mt-3 text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
-            Environmental. Social. Governance.
-          </h2>
-          <p className="mx-auto mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
-            Three modules, one shared data model. Every upload, action, and record feeds every pillar.
-          </p>
-        </motion.div>
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr_1fr]">
-          {PILLARS.map((p, i) => (
-            <Link
-              key={p.id}
-              href={p.href}
-              className={`group relative overflow-hidden rounded-2xl border border-slate-200/60 p-8 transition-all hover:shadow-lg dark:border-zinc-800/60 ${i === 0 ? "bg-emerald-50 dark:bg-emerald-950/20" : i === 1 ? "bg-blue-50/60 dark:bg-blue-950/20" : "bg-violet-50/60 dark:bg-violet-950/20"}`}
-            >
-              <motion.div {...fadeUp(r, 0.1 * i)} className="h-full">
-                <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl ${i === 0 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" : i === 1 ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" : "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300"}`}>
-                  <p.icon className="h-5 w-5" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-zinc-100">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">{p.desc}</p>
-                <ul className="mt-5 space-y-2">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[13px] text-slate-500 dark:text-zinc-400">
-                      <span className={`h-1.5 w-1.5 rounded-full ${i === 0 ? "bg-emerald-500" : i === 1 ? "bg-blue-500" : "bg-violet-500"}`} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-6 flex items-center gap-1 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
-                  Open {p.title}
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AIFeaturesSection({ r }: { r: boolean }) {
-  const features = [
-    { icon: MagnifyingGlass, title: "Smart Document Extraction", desc: "Upload PDFs, CSVs, or images. AI extracts vendor, amount, date, and category with confidence scoring." },
-    { icon: Sparkle, title: "Action Validation Engine", desc: "Employees submit evidence for sustainable actions. AI validates authenticity and estimates carbon impact in real time." },
-    { icon: ChartLineUp, title: "Anomaly Detection", desc: "Month-over-month spikes above 30% are flagged automatically with AI-generated explanations." },
-    { icon: FileText, title: "Automated Report Generation", desc: "Generate GRI and CSRD compliant board reports with cited evidence from the tamper-proof registry." },
-  ];
-
-  return (
-    <section className="py-20 md:py-28">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <motion.div {...fadeUp(r)}>
-          <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
-            AI that does the work
-          </h2>
-          <p className="mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
-            Not a chatbot. An agent that extracts, validates, detects, and reports across every pillar.
-          </p>
-        </motion.div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2">
-          {features.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={r ? {} : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 * i, ease: [0.16, 1, 0.3, 1] }}
-              className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-colors hover:border-slate-300/60 dark:border-zinc-800/60 dark:bg-zinc-900 dark:hover:border-zinc-700/60"
-            >
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                <f.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900 dark:text-zinc-100">{f.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-zinc-400">{f.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const STEPS = [
-  { icon: RocketLaunch, title: "Upload Data", desc: "Utility bills, fleet logs, invoices. Drag and drop. AI extracts everything." },
-  { icon: Globe, title: "Measure Impact", desc: "Real-time Scope 1/2/3 breakdown, MACC curve, and employee engagement metrics." },
-  { icon: ShieldCheck, title: "Prove Compliance", desc: "Tamper-proof evidence chain. GRI/CSRD reports with one click." },
-];
-
-function HowItWorksSection({ r }: { r: boolean }) {
-  return (
-    <section className="py-20 md:py-28">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-        <motion.div {...fadeUp(r)} className="mb-14 text-center">
-          <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight text-slate-900 dark:text-zinc-100">
-            From data to report in minutes
-          </h2>
-          <p className="mx-auto mt-3 max-w-[55ch] text-[17px] text-slate-500 dark:text-zinc-400">
-            Three steps. No spreadsheets. No consultants.
-          </p>
-        </motion.div>
-        <div className="grid gap-8 md:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={r ? {} : { opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.15 * i, ease: [0.16, 1, 0.3, 1] }}
-              className="relative text-center"
-            >
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                <s.icon className="h-6 w-6" />
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className="absolute left-[calc(50%+3rem)] top-7 hidden h-px w-[calc(100%-6rem)] md:block bg-slate-200 dark:bg-zinc-700" />
-              )}
-              <h3 className="text-lg font-bold text-slate-900 dark:text-zinc-100">{s.title}</h3>
-              <p className="mt-2 text-sm text-slate-500 dark:text-zinc-400">{s.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CTASection({ r }: { r: boolean }) {
-  return (
-    <section className="py-24 md:py-32">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+    <section className="bg-[#f4f6ef] px-5 pb-8 pt-24 sm:px-8 lg:px-12 lg:pb-12 lg:pt-28">
+      <div className="mx-auto grid max-w-[1440px] overflow-hidden rounded-[2.5rem] bg-[#133725] text-[#eef4e7] lg:grid-cols-[minmax(0,1.05fr)_minmax(440px,.95fr)]">
         <motion.div
-          initial={r ? {} : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative overflow-hidden rounded-3xl bg-emerald-600 px-8 py-16 text-center text-white md:px-16 md:py-24"
+          initial={reduced ? false : { opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="flex min-h-[590px] flex-col justify-between px-7 py-8 sm:px-12 sm:py-12 lg:px-16 lg:py-16"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.12),transparent_60%)] pointer-events-none" />
-          <h2 className="relative text-[clamp(1.5rem,4vw,2.75rem)] font-bold leading-tight tracking-tight">
-            Ready to unify your ESG program?
-          </h2>
-          <p className="relative mx-auto mt-4 max-w-[50ch] text-[17px] text-emerald-100">
-            Upload a utility bill and see your full environmental baseline in under 60 seconds. No signup required for the demo.
-          </p>
-          <div className="relative mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-[15px] font-semibold text-emerald-700 transition-all hover:bg-emerald-50 active:scale-[0.97]">
-              Launch Demo
-              <ArrowRight className="h-4 w-4" />
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#62836d] px-3 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#c8deaf]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b7dc85]" />
+              ESG, connected end to end
+            </div>
+            <h1 className="mt-10 max-w-[10ch] text-[clamp(3.25rem,7vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.075em] text-[#f4f6ef]">
+              Build the proof behind every ESG claim.
+            </h1>
+            <p className="mt-7 max-w-[50ch] text-[16px] leading-relaxed text-[#c7d5c8] sm:text-[18px]">
+              EcoSphere turns scattered source data into a defensible operating system for carbon, people, and compliance.
+            </p>
+          </div>
+          <div className="mt-12 flex flex-wrap items-center gap-4">
+            <Link
+              href="/dashboard"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#b7dc85] px-5 text-[14px] font-semibold text-[#17341f] transition-colors hover:bg-[#d5edb5]"
+            >
+              Explore the live demo <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/environment" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-7 py-3 text-[15px] font-medium text-white transition-all hover:bg-white/10 active:scale-[0.97]">
-              View Environmental Dashboard
+            <Link href="#how-it-works" className="inline-flex min-h-12 items-center gap-2 px-2 text-[14px] font-medium text-[#e4eee1] hover:text-white">
+              See how proof flows <ArrowUpRight className="h-4 w-4" />
             </Link>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={reduced ? false : { opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.72, delay: reduced ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden border-t border-[#376247] bg-[#1c4a33] p-6 sm:p-10 lg:border-l lg:border-t-0 lg:p-12"
+        >
+          <div className="absolute right-[-10%] top-[-12%] h-72 w-72 rounded-full border border-[#4e785c]" />
+          <div className="absolute bottom-[-24%] left-[7%] h-72 w-72 rounded-full border border-[#4e785c]" />
+          <div className="relative flex h-full flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[12px] font-semibold tracking-[0.08em] text-[#b7dc85]">THE EVIDENCE PATH</p>
+              <span className="rounded-full bg-[#2b5d40] px-3 py-1 text-[11px] font-medium text-[#d7e8d2]">LIVE DEMO</span>
+            </div>
+            <div className="my-10 space-y-0">
+              {PROOF_STEPS.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <div key={step.number} className="grid grid-cols-[46px_minmax(0,1fr)] gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className={`grid h-10 w-10 place-items-center rounded-full border border-[#648a6b] bg-[#214f37] ${step.tone}`}>
+                        <Icon className="h-[18px] w-[18px]" />
+                      </div>
+                      {index < PROOF_STEPS.length - 1 && <div className="h-12 w-px bg-[#66846b]" />}
+                    </div>
+                    <div className="pb-6 pt-1">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h2 className="text-[19px] font-semibold tracking-[-0.03em] text-[#f2f7ed]">{step.label}</h2>
+                        <span className="text-[12px] font-medium text-[#9ebda3]">{step.number}</span>
+                      </div>
+                      <p className="mt-1 text-[13px] text-[#bcd0be]">{step.detail}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="border-t border-[#4b7456] pt-5">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[13px] font-medium text-[#dcead8]">Every result keeps its source.</span>
+                <CheckCircle className="h-5 w-5 flex-none text-[#b7dc85]" />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -335,47 +187,194 @@ function CTASection({ r }: { r: boolean }) {
   );
 }
 
-function FooterSection() {
+function ProblemSection({ reduced }: { reduced: boolean }) {
   return (
-    <footer className="border-t border-slate-200 dark:border-zinc-800">
-      <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-slate-500 dark:text-zinc-500 lg:flex-row lg:px-10">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white">E</span>
-          <span className="font-medium text-slate-700 dark:text-zinc-300">EcoSphere</span>
+    <section className="bg-[#f4f6ef] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+      <div className="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          className="text-[12px] font-semibold tracking-[0.11em] text-[#52705a]"
+        >
+          FROM SPREADSHEET CHASE TO SHARED CERTAINTY
+        </motion.p>
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ delay: reduced ? 0 : 0.08 }}
+        >
+          <h2 className="max-w-[15ch] text-[clamp(2.25rem,4.4vw,4.4rem)] font-semibold leading-[0.96] tracking-[-0.065em] text-[#17341f]">
+            Sustainability only works when the evidence moves with the decision.
+          </h2>
+          <p className="mt-7 max-w-[54ch] text-[17px] leading-relaxed text-[#5b6c61]">
+            A utility bill affects an emissions metric. An employee action changes the carbon story. A disclosure depends on both. EcoSphere keeps that chain intact, so teams can act faster without losing trust.
+          </p>
+          <div className="mt-10 grid border-y border-[#cdd8ca] sm:grid-cols-3">
+            {[
+              ["Source-aware", "Every number links back."],
+              ["People-powered", "Actions feed impact."],
+              ["Board-ready", "Reports show the trail."],
+            ].map(([title, copy]) => (
+              <div key={title} className="border-[#cdd8ca] py-5 pr-5 sm:border-r sm:px-5 sm:first:pl-0 sm:last:border-0">
+                <p className="text-[15px] font-semibold text-[#17341f]">{title}</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-[#627166]">{copy}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function PillarsSection({ reduced }: { reduced: boolean }) {
+  return (
+    <section className="bg-[#e8ece3] px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
+      <div className="mx-auto max-w-[1440px]">
+        <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-[12px] font-semibold tracking-[0.11em] text-[#52705a]">THREE PILLARS, ONE OPERATING SYSTEM</p>
+            <h2 className="mt-3 max-w-[18ch] text-[clamp(2rem,3.5vw,3.75rem)] font-semibold leading-[0.98] tracking-[-0.06em] text-[#17341f]">Follow the signal across your whole ESG program.</h2>
+          </div>
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#29563b] hover:text-[#17341f]">
+            See the workspace <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-        <p className="text-center text-[13px]">Built for Odoo Hackathon 2026. ESG management, unified.</p>
-        <div className="flex gap-6 text-[13px]">
-          <Link href="/dashboard" className="transition-colors hover:text-emerald-600">Dashboard</Link>
-          <Link href="/environment" className="transition-colors hover:text-emerald-600">Environment</Link>
-          <Link href="/social" className="transition-colors hover:text-emerald-600">Social</Link>
-          <Link href="/governance" className="transition-colors hover:text-emerald-600">Governance</Link>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {PILLARS.map((pillar, index) => {
+            const Icon = pillar.icon;
+            return (
+              <motion.div
+                key={pillar.kicker}
+                initial={reduced ? false : { opacity: 0, y: 22 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ delay: reduced ? 0 : index * 0.08, duration: 0.5 }}
+                className={`flex min-h-[410px] flex-col justify-between rounded-[2rem] p-7 sm:p-8 ${pillar.panel}`}
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold tracking-[0.08em] opacity-70">{pillar.kicker}</span>
+                    <span className={`grid h-11 w-11 place-items-center rounded-full ${pillar.iconPanel}`}><Icon className="h-5 w-5" /></span>
+                  </div>
+                  <h3 className="mt-12 max-w-[13ch] text-[31px] font-semibold leading-[0.98] tracking-[-0.055em]">{pillar.title}</h3>
+                  <p className="mt-5 max-w-[37ch] text-[15px] leading-relaxed opacity-80">{pillar.copy}</p>
+                </div>
+                <div className="pt-8">
+                  <p className="border-t border-current/15 pt-4 text-[13px] font-medium opacity-75">{pillar.detail}</p>
+                  <Link href={pillar.href} className="mt-6 inline-flex items-center gap-2 text-[14px] font-semibold hover:opacity-70">
+                    {pillar.action} <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function CapabilitySection({ reduced }: { reduced: boolean }) {
+  const rows = [
+    ["Extract", "AI turns source records into structured ESG data.", "Environmental"],
+    ["Validate", "Evidence-based actions earn confidence, XP, and impact.", "Social"],
+    ["Assure", "Hash-linked records make disclosure status inspectable.", "Governance"],
+  ];
+
+  return (
+    <section id="how-it-works" className="bg-[#f4f6ef] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+      <div className="mx-auto max-w-[1280px]">
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          className="grid gap-6 border-b border-[#cdd8ca] pb-10 lg:grid-cols-[.8fr_1.2fr]"
+        >
+          <p className="text-[12px] font-semibold tracking-[0.11em] text-[#52705a]">NOT A DASHBOARD FOR ITS OWN SAKE</p>
+          <div>
+            <h2 className="max-w-[13ch] text-[clamp(2.25rem,4vw,4rem)] font-semibold leading-[0.96] tracking-[-0.065em] text-[#17341f]">Do the work once. Let every ESG decision benefit.</h2>
+            <p className="mt-5 max-w-[52ch] text-[16px] leading-relaxed text-[#5b6c61]">Each pillar is useful on its own. Together, they stop ESG data from becoming a handoff problem.</p>
+          </div>
+        </motion.div>
+        <div className="divide-y divide-[#cdd8ca]">
+          {rows.map(([verb, copy, destination], index) => (
+            <motion.div
+              key={verb}
+              initial={reduced ? false : { opacity: 0, x: -14 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ delay: reduced ? 0 : index * 0.08 }}
+              className="grid gap-4 py-7 sm:grid-cols-[.35fr_1fr_auto] sm:items-center"
+            >
+              <p className="text-[24px] font-semibold tracking-[-0.04em] text-[#17341f]">{verb}</p>
+              <p className="max-w-[46ch] text-[15px] leading-relaxed text-[#5b6c61]">{copy}</p>
+              <span className="text-[13px] font-semibold text-[#52705a]">{destination}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCta({ reduced }: { reduced: boolean }) {
+  return (
+    <section className="bg-[#f4f6ef] px-5 pb-8 sm:px-8 lg:px-12 lg:pb-12">
+      <motion.div
+        initial={reduced ? false : { opacity: 0, y: 22 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        className="mx-auto max-w-[1440px] rounded-[2.5rem] bg-[#153c2a] px-7 py-14 text-[#eff6e9] sm:px-12 sm:py-20 lg:px-16"
+      >
+        <div className="grid gap-10 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
+          <div>
+            <p className="text-[12px] font-semibold tracking-[0.11em] text-[#b7dc85]">START WITH THE EVIDENCE YOU ALREADY HAVE</p>
+            <h2 className="mt-5 max-w-[12ch] text-[clamp(2.5rem,5vw,5.25rem)] font-semibold leading-[0.9] tracking-[-0.075em]">Make your next ESG report easier to trust.</h2>
+          </div>
+          <div className="lg:pb-2">
+            <p className="max-w-[38ch] text-[16px] leading-relaxed text-[#c7d5c8]">Open the demo, upload a source record, and follow the chain all the way to a cited report.</p>
+            <Link href="/dashboard" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#b7dc85] px-5 text-[14px] font-semibold text-[#17341f] transition-colors hover:bg-[#d5edb5]">
+              Launch EcoSphere <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-[#f4f6ef] px-5 py-8 sm:px-8 lg:px-12">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-5 border-t border-[#cdd8ca] pt-7 text-[13px] text-[#627166] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-[#17341f]">
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-[#183a27] text-[9px] font-bold text-[#eef4e7]">E</span>
+          <span className="font-semibold">EcoSphere</span>
+        </div>
+        <p>Connected sustainability management for teams that need proof, not just progress.</p>
+        <Link href="/governance" className="font-semibold text-[#29563b] hover:text-[#17341f]">Explore assurance</Link>
       </div>
     </footer>
   );
 }
 
 export default function LandingPage() {
-  const prefersReducedMotion = useReducedMotion() ?? false;
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => setReduced(prefersReducedMotion));
-    return () => cancelAnimationFrame(frame);
-  }, [prefersReducedMotion]);
+  const reduced = useHydratedReducedMotion();
 
   return (
-    <div className="min-h-[100dvh] bg-white text-slate-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <div className="min-h-[100dvh] overflow-x-hidden bg-[#f4f6ef] text-[#17341f]">
       <Nav />
       <main>
-        <HeroSection r={reduced} />
-        <TrustedBySection />
-        <PillarsSection r={reduced} />
-        <AIFeaturesSection r={reduced} />
-        <HowItWorksSection r={reduced} />
-        <CTASection r={reduced} />
+        <Hero reduced={reduced} />
+        <ProblemSection reduced={reduced} />
+        <PillarsSection reduced={reduced} />
+        <CapabilitySection reduced={reduced} />
+        <FinalCta reduced={reduced} />
       </main>
-      <FooterSection />
+      <Footer />
     </div>
   );
 }
