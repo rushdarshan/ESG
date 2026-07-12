@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   TreeEvergreen,
   Users,
@@ -37,11 +38,10 @@ function Nav() {
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b px-6 text-sm transition-colors lg:px-10 ${
-        scrolled
-          ? "border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-zinc-800/60 dark:bg-zinc-950/80"
-          : "border-transparent bg-transparent"
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b px-6 text-sm transition-colors lg:px-10 ${scrolled
+        ? "border-slate-200/60 bg-white/80 backdrop-blur-md dark:border-zinc-800/60 dark:bg-zinc-950/80"
+        : "border-transparent bg-transparent"
+        }`}
     >
       <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900 dark:text-zinc-100">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">
@@ -103,11 +103,14 @@ function HeroSection({ r }: { r: boolean }) {
             className="relative"
           >
             <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-800">
-              <img
+              <Image
                 src="https://picsum.photos/seed/ecosphere-hero/800/600"
                 alt="Sustainable office and nature"
+                width={800}
+                height={600}
                 className="h-full w-full object-cover"
-                loading="eager"
+                priority
+                unoptimized
               />
             </div>
             <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-xl border border-slate-200/60 bg-white/90 px-4 py-2.5 text-[13px] font-medium text-slate-700 shadow-lg backdrop-blur-md dark:border-zinc-700/60 dark:bg-zinc-900/90 dark:text-zinc-300">
@@ -353,10 +356,7 @@ function FooterSection() {
 }
 
 export default function LandingPage() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
+  const reduced = useReducedMotion() ?? false;
 
   return (
     <div className="min-h-[100dvh] bg-white text-slate-900 dark:bg-zinc-950 dark:text-zinc-100">
