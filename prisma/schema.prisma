@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Core ────────────────────────────────────────────────
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  industry    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  departments Department[]
+  employees   Employee[]
+  locations   Location[]
+  scores      ESGScore[]
+}
+
+model Department {
+  id             String           @id @default(cuid())
+  name           String
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  employees      Employee[]
+  actions        EmployeeAction[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([organizationId])
+}
+
+model Employee {
+  id             String           @id @default(cuid())
+  name           String
+  email          String           @unique
+  role           String           @default("employee")
+  departmentId   String
+  department     Department       @relation(fields: [departmentId], references: [id])
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  actions        EmployeeAction[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([departmentId])
+  @@index([organizationId])
+}
+
+model Location {
+  id             String       @id @default(cuid())
+  name           String
+  type           String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+}
+
+// ─── Governance ──────────────────────────────────────────
+
+model ESGScore {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  overall        Float
+  environmental  Float
+  social         Float
+  governance     Float
+  period         String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+// ─── Environmental ───────────────────────────────────────
+
+model ESGMetric {
+  id                    String           @id @default(cuid())
+  organizationId        String
+  scope                 Int // 1, 2, or 3
+  value                 Float
+  unit                  String // "tCO2e", "kWh", "km", etc.
+  confidence            Float // 0.0–1.0
+  category              String // "fuel", "electricity", "travel", "waste", etc.
+  sourceDocumentId      String?
+  extractionLogic       String? // AI extraction summary
+  emissionFactorUsed    String?
+  emissionFactorVersion String?
+  description           String?
+  period                String? // "2024-01", "2024-Q1", etc.
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  evidenceRecords       EvidenceRecord[]
+
+  @@index([organizationId])
+  @@index([scope])
+  @@index([category])
+}
+
+// ─── Social ──────────────────────────────────────────────
+
+model EmployeeAction {
+  id              String           @id @default(cuid())
+  actionType      String // "bike_commute", "recycling", etc.
+  carbonSaved     Float // tCO2e saved
+  xpAwarded       Int              @default(0)
+  confidence      Float // AI validation confidence 0.0–1.0
+  evidenceType    String? // "photo", "receipt", "gps", "self_report"
+  evidenceUrl     String? // path to uploaded evidence
+  employeeId      String
+  employee        Employee         @relation(fields: [employeeId], references: [id])
+  departmentId    String
+  department      Department       @relation(fields: [departmentId], references: [id])
+  status          String           @default("approved") // "pending", "approved", "rejected"
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  evidenceRecords EvidenceRecord[]
+
+  @@index([employeeId])
+  @@index([departmentId])
+  @@index([actionType])
+}
+
+// ─── Evidence Registry (hash chain) ──────────────────────
+
+model EvidenceRecord {
+  id           String          @id @default(cuid())
+  contentHash  String // SHA-256(content + previousHash)
+  previousHash String? // null for genesis record
+  source       String // "upload", "action", "report", "ai"
+  sourceId     String? // ID of related entity
+  metricId     String?
+  metric       ESGMetric?      @relation(fields: [metricId], references: [id])
+  actionId     String?
+  action       EmployeeAction? @relation(fields: [actionId], references: [id])
+  content      String // JSON-serialized evidence content
+  createdAt    DateTime        @default(now())
+
+  @@index([metricId])
+  @@index([actionId])
+  @@index([source])
+}
