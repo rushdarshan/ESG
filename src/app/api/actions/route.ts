@@ -127,28 +127,33 @@ export async function POST(request: NextRequest) {
 // ── GET /api/actions ────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const employeeId = searchParams.get("employeeId");
-  const departmentId = searchParams.get("departmentId");
+  try {
+    const { searchParams } = new URL(request.url);
+    const employeeId = searchParams.get("employeeId");
+    const departmentId = searchParams.get("departmentId");
 
-  if (employeeId) {
-    const actions = await db.employeeAction.findMany({
-      where: { employeeId },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
-    return NextResponse.json(actions);
+    if (employeeId) {
+      const actions = await db.employeeAction.findMany({
+        where: { employeeId },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      });
+      return NextResponse.json(actions);
+    }
+
+    if (departmentId) {
+      const actions = await db.employeeAction.findMany({
+        where: { departmentId },
+        orderBy: { createdAt: "desc" },
+        include: { employee: { select: { name: true } } },
+        take: 50,
+      });
+      return NextResponse.json(actions);
+    }
+
+    return NextResponse.json({ error: "Provide employeeId or departmentId" }, { status: 400 });
+  } catch (error) {
+    console.error("Actions fetch error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  if (departmentId) {
-    const actions = await db.employeeAction.findMany({
-      where: { departmentId },
-      orderBy: { createdAt: "desc" },
-      include: { employee: { select: { name: true } } },
-      take: 50,
-    });
-    return NextResponse.json(actions);
-  }
-
-  return NextResponse.json({ error: "Provide employeeId or departmentId" }, { status: 400 });
 }
