@@ -19,33 +19,40 @@ model Organization {
   employees   Employee[]
   locations   Location[]
   scores      ESGScore[]
+  audits      Audit[]
 }
 
 model Department {
-  id             String           @id @default(cuid())
-  name           String
-  organizationId String
-  organization   Organization     @relation(fields: [organizationId], references: [id])
-  employees      Employee[]
-  actions        EmployeeAction[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id               String            @id @default(cuid())
+  name             String
+  organizationId   String
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  employees        Employee[]
+  actions          EmployeeAction[]
+  csrActivities    CSR_Activity[]
+  departmentScores DepartmentScore[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@index([organizationId])
 }
 
 model Employee {
-  id             String           @id @default(cuid())
-  name           String
-  email          String           @unique
-  role           String           @default("employee")
-  departmentId   String
-  department     Department       @relation(fields: [departmentId], references: [id])
-  organizationId String
-  organization   Organization     @relation(fields: [organizationId], references: [id])
-  actions        EmployeeAction[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id                      String                   @id @default(cuid())
+  name                    String
+  email                   String                   @unique
+  role                    String                   @default("employee")
+  departmentId            String
+  department              Department               @relation(fields: [departmentId], references: [id])
+  organizationId          String
+  organization            Organization             @relation(fields: [organizationId], references: [id])
+  actions                 EmployeeAction[]
+  organizedCsr            CSR_Activity[]           @relation("OrganizerRelation")
+  csrParticipations       EmployeeParticipation[]
+  challengeParticipations ChallengeParticipation[]
+  complianceIssues        ComplianceIssue[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 
   @@index([departmentId])
   @@index([organizationId])
@@ -147,4 +154,159 @@ model EvidenceRecord {
   @@index([metricId])
   @@index([actionId])
   @@index([source])
+}
+
+// ─── Compliance: CSR Activities ────────────────────────────
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  type      String // "CSR_Activity" or "Challenge"
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  challenges Challenge[]
+
+  @@index([type])
+}
+
+model CSR_Activity {
+  id           String      @id @default(cuid())
+  title        String
+  description  String?
+  date         DateTime
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  organizerId  String?
+  organizer    Employee?   @relation("OrganizerRelation", fields: [organizerId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  participations EmployeeParticipation[]
+
+  @@index([departmentId])
+}
+
+model EmployeeParticipation {
+  id             String       @id @default(cuid())
+  employeeId     String
+  employee       Employee     @relation(fields: [employeeId], references: [id])
+  activityId     String
+  activity       CSR_Activity @relation(fields: [activityId], references: [id])
+  proof          String? // file URL
+  approvalStatus String       @default("pending") // pending / approved / rejected
+  pointsEarned   Int          @default(0)
+  completionDate DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([employeeId])
+  @@index([activityId])
+}
+
+// ─── Compliance: Challenges & Gamification ─────────────────
+
+model Challenge {
+  id               String    @id @default(cuid())
+  title            String
+  categoryId       String?
+  category         Category? @relation(fields: [categoryId], references: [id])
+  description      String?
+  xp               Int       @default(0)
+  difficulty       String    @default("medium") // easy / medium / hard
+  evidenceRequired Boolean   @default(false)
+  deadline         DateTime?
+  status           String    @default("draft") // draft / active / under_review / completed / archived
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  participations ChallengeParticipation[]
+
+  @@index([status])
+}
+
+model ChallengeParticipation {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  progress    Float     @default(0) // 0.0–100.0
+  proof       String?
+  approval    String    @default("pending") // pending / approved / rejected
+  xpAwarded   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([challengeId])
+  @@index([employeeId])
+}
+
+// ─── Compliance: Rewards ───────────────────────────────────
+
+model Reward {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  pointsRequired Int
+  stock          Int      @default(0)
+  status         String   @default("active") // active / inactive
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ─── Compliance: Governance ────────────────────────────────
+
+model Audit {
+  id             String       @id @default(cuid())
+  title          String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  date           DateTime
+  findings       String?
+  status         String       @default("planned") // planned / in_progress / completed
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  complianceIssues ComplianceIssue[]
+
+  @@index([organizationId])
+}
+
+model ComplianceIssue {
+  id          String    @id @default(cuid())
+  auditId     String
+  audit       Audit     @relation(fields: [auditId], references: [id])
+  severity    String    @default("medium") // low / medium / high / critical
+  description String
+  ownerId     String?
+  owner       Employee? @relation(fields: [ownerId], references: [id])
+  dueDate     DateTime?
+  status      String    @default("open") // open / in_progress / resolved / closed
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([auditId])
+  @@index([ownerId])
+  @@index([status])
+}
+
+// ─── Scoring ───────────────────────────────────────────────
+
+model DepartmentScore {
+  id                 String     @id @default(cuid())
+  departmentId       String
+  department         Department @relation(fields: [departmentId], references: [id])
+  period             String // "2024-Q1", "2024-01", etc.
+  environmentalScore Float      @default(0)
+  socialScore        Float      @default(0)
+  governanceScore    Float      @default(0)
+  totalScore         Float      @default(0)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@unique([departmentId, period])
+  @@index([departmentId])
+  @@index([period])
 }
