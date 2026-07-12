@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileArrowUp,
@@ -17,8 +17,9 @@ interface UploadedFile {
   name: string;
   size: string;
   type: "pdf" | "csv" | "image";
-  status: "uploading" | "processing" | "done";
+  status: "uploading" | "processing" | "done" | "error";
   confidence?: number;
+  error?: string;
 }
 
 const FILE_ICONS = {
@@ -30,12 +31,10 @@ const FILE_ICONS = {
 export function UploadZone({ organizationId }: { organizationId?: string }) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const newFiles: UploadedFile[] = Array.from(e.dataTransfer.files).map(
+  const uploadFiles = useCallback((sourceFiles: File[]) => {
+    const newFiles: UploadedFile[] = sourceFiles.map(
       (f) => ({
         id: Math.random().toString(36).slice(2),
         name: f.name,
@@ -51,24 +50,13 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
 
     setFiles((prev) => [...prev, ...newFiles]);
 
-    newFiles.forEach(async (file) => {
+    newFiles.forEach(async (file, index) => {
       if (!organizationId) {
-        setTimeout(() => {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === file.id ? { ...f, status: "processing" } : f
-            )
-          );
-        }, 800);
-        setTimeout(() => {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === file.id
-                ? { ...f, status: "done", confidence: 0.85 + Math.random() * 0.14 }
-                : f
-            )
-          );
-        }, 2200);
+        setFiles((prev) => prev.map((f) => (
+          f.id === file.id
+            ? { ...f, status: "error", error: "Demo organization is still loading. Try again in a moment." }
+            : f
+        )));
         return;
       }
 
@@ -83,10 +71,7 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
       try {
         const fd = new FormData();
         fd.append("organizationId", organizationId);
-        const dropFile = e.dataTransfer.files.item(
-          newFiles.findIndex((nf) => nf.id === file.id)
-        );
-        if (dropFile) fd.append("file", dropFile);
+        fd.append("file", sourceFiles[index]);
 
         const res = await fetch("/api/upload", { method: "POST", body: fd });
 
@@ -101,19 +86,26 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
               : f
           )
         );
-      } catch {
-        setTimeout(() => {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === file.id
-                ? { ...f, status: "done", confidence: 0.85 + Math.random() * 0.14 }
-                : f
-            )
-          );
-        }, 1800);
+      } catch (error) {
+        setFiles((prev) => prev.map((f) => (
+          f.id === file.id
+            ? { ...f, status: "error", error: error instanceof Error ? error.message : "Upload failed" }
+            : f
+        )));
       }
     });
-  }, []);
+  }, [organizationId]);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    uploadFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    uploadFiles(Array.from(e.target.files ?? []));
+    e.target.value = "";
+  };
 
   const removeFile = (id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
@@ -135,6 +127,14 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
         }}
         className="relative flex min-h-[180px] flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 transition-colors"
       >
+        <input
+          ref={inputRef}
+          type="file"
+          className="sr-only"
+          accept=".pdf,.csv,image/png,image/jpeg,image/webp"
+          multiple
+          onChange={handleFileInput}
+        />
         <motion.div
           animate={{ y: isDragging ? -4 : 0 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -151,7 +151,11 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
         <p className="mt-1 text-[12px] text-slate-400">
           PDF, CSV, or images — up to 10 MB
         </p>
-        <button className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]"
+        >
           Browse Files
         </button>
       </motion.div>
@@ -200,8 +204,15 @@ export function UploadZone({ organizationId }: { organizationId?: string }) {
                       </span>
                     </div>
                   )}
+                  {file.status === "error" && (
+                    <span className="max-w-40 text-right text-[11px] text-rose-600">
+                      {file.error}
+                    </span>
+                  )}
                   <button
+                    type="button"
                     onClick={() => removeFile(file.id)}
+                    aria-label={`Remove ${file.name}`}
                     className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 active:scale-[0.9]"
                   >
                     <X className="h-3.5 w-3.5" />

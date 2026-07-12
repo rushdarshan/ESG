@@ -45,6 +45,7 @@ export function ESGSwitcher() {
           <button
             key={pillar.key}
             onClick={() => router.push(`/${pillar.key}`)}
+            aria-current={isActive ? "page" : undefined}
             className={`relative rounded-xl px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
               isActive
                 ? "text-white"

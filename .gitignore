@@ -44,3 +44,7 @@ next-env.d.ts
 
 # compound-engineering
 .compound-engineering/*.local.yaml
+
+qa-artifacts/
+qa-server.*.log
+scripts/qa-*

@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Write to Evidence Registry (U6) — hash chain
-    const evidenceRecord = await addRecord({
+    await addRecord({
       source: "action",
       sourceId: action.id,
       actionId: action.id,
@@ -204,7 +204,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(actions);
     }
 
-    return NextResponse.json({ error: "Provide employeeId, departmentId, or ?leaderboard=true" }, { status: 400 });
+    const [totalActions, recentActions] = await Promise.all([
+      db.employeeAction.count(),
+      db.employeeAction.findMany({
+        include: { employee: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+    ]);
+
+    return NextResponse.json({
+      actions: recentActions.map((action) => ({
+        user: action.employee.name,
+        action: action.actionType.replace(/_/g, " "),
+        xp: `+${action.xpAwarded} XP`,
+        time: action.createdAt.toISOString(),
+      })),
+      summaryStats: [
+        {
+          label: "Employee Actions",
+          value: totalActions.toLocaleString(),
+          change: "Live data",
+        },
+      ],
+    });
   } catch (error) {
     console.error("Actions fetch error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

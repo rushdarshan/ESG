@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  GearSix,
   Building,
   Bell,
   Key,
@@ -40,9 +39,13 @@ function SettingRow({
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ checked, label, onChange }: { checked: boolean; label: string; onChange: (v: boolean) => void }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
       className={`relative h-5 w-9 rounded-full transition-colors ${
         checked ? "bg-emerald-500" : "bg-slate-200"
@@ -66,19 +69,17 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const savedName = localStorage.getItem("ecosphere_org_name");
-    const savedInd = localStorage.getItem("ecosphere_industry");
-    if (savedName) setOrganizationName(savedName);
-    if (savedInd) setIndustry(savedInd);
+    const frame = requestAnimationFrame(() => {
+      const savedName = localStorage.getItem("ecosphere_org_name");
+      const savedInd = localStorage.getItem("ecosphere_industry");
+      if (savedName) setOrganizationName(savedName);
+      if (savedInd) setIndustry(savedInd);
 
-    const savedTheme = localStorage.getItem("theme");
-    const isDark = savedTheme === "dark";
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+      const isDark = localStorage.getItem("theme") === "dark";
+      setDarkMode(isDark);
+      document.documentElement.classList.toggle("dark", isDark);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const handleThemeChange = (val: boolean) => {
@@ -97,6 +98,16 @@ export default function SettingsPage() {
     localStorage.setItem("ecosphere_industry", industry);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleResetPreferences = () => {
+    localStorage.removeItem("ecosphere_org_name");
+    localStorage.removeItem("ecosphere_industry");
+    localStorage.removeItem("theme");
+    setOrganizationName("GreenForge Industries");
+    setIndustry("Industrial Manufacturing");
+    handleThemeChange(false);
+    setSaved(false);
   };
 
   return (
@@ -151,7 +162,7 @@ export default function SettingsPage() {
                 <SettingRow icon={Palette} label="Theme" desc="Preview dark color scheme">
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] text-slate-500">Off</span>
-                    <Toggle checked={darkMode} onChange={handleThemeChange} />
+                    <Toggle checked={darkMode} label="Dark mode" onChange={handleThemeChange} />
                     <span className="text-[12px] text-slate-500">On</span>
                   </div>
                 </SettingRow>
@@ -169,10 +180,10 @@ export default function SettingsPage() {
               </div>
               <div className="divide-y divide-slate-100">
                 <SettingRow icon={Bell} label="Email Reports" desc="Weekly executive summary via email">
-                  <Toggle checked={emailNotif} onChange={setEmailNotif} />
+                  <Toggle checked={emailNotif} label="Email reports" onChange={setEmailNotif} />
                 </SettingRow>
                 <SettingRow icon={Bell} label="Anomaly Alerts" desc="Notify when spikes exceed 30% MoM">
-                  <Toggle checked={reportNotif} onChange={setReportNotif} />
+                  <Toggle checked={reportNotif} label="Anomaly alerts" onChange={setReportNotif} />
                 </SettingRow>
               </div>
             </motion.div>
@@ -212,9 +223,13 @@ export default function SettingsPage() {
                 <p className="text-[13px] font-bold text-rose-600">Danger Zone</p>
               </div>
               <div className="px-5 py-4">
-                <button className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97]">
+                <button
+                  type="button"
+                  onClick={handleResetPreferences}
+                  className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97]"
+                >
                   <Trash className="h-3.5 w-3.5" />
-                  Reset Demo Data
+                  Reset Local Preferences
                 </button>
               </div>
             </motion.div>

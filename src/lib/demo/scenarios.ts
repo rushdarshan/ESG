@@ -59,6 +59,9 @@ export async function getScenarioData(organizationId: string) {
 
   return {
     organization: { id: org.id, name: org.name, industry: org.industry },
+    employees: org.departments.flatMap((department) =>
+      department.employees.map((employee) => ({ id: employee.id, name: employee.name }))
+    ),
     departments: org.departments.map((d) => ({
       name: d.name,
       employeeCount: d.employees.length,

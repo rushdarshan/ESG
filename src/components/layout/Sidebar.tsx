@@ -34,7 +34,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-full w-[72px] flex-col items-center border-r border-slate-200/60 bg-white py-6 lg:w-[220px]">
       {/* Logo */}
-      <Link href="/dashboard" className="mb-10 flex items-center gap-2.5 px-2">
+      <Link href="/dashboard" aria-label="EcoSphere dashboard" className="mb-10 flex items-center gap-2.5 px-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600">
           <Leaf className="h-5 w-5 text-white" />
         </div>
@@ -65,7 +65,9 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-               className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+              aria-label={label}
+              aria-current={isActive ? "page" : undefined}
+              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                  isActive
                    ? "bg-emerald-50 text-emerald-700"
                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"

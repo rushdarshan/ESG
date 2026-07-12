@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
   FileText,
   Download,
-  Clock,
   CheckCircle,
   FileArrowDown,
   ShieldCheck,
@@ -55,41 +54,40 @@ const COLORS: Record<string, string> = {
   violet: "bg-violet-100 text-violet-700",
 };
 
+async function downloadReport(type: string) {
+  const response = await fetch("/api/reports", {
+    method: "POST",
+    body: JSON.stringify({ type }),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) throw new Error("Report generation failed");
+
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `EcoSphere_${type}_Report.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleGenerate = async () => {
     setGenerating(true);
+    setError(false);
     try {
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        body: JSON.stringify({ type: r.id }),
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!res.ok) throw new Error("API failed");
-      
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `EcoSphere_${r.id}_Report.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      if (link.parentNode) {
-        link.parentNode.removeChild(link);
-      }
-      window.URL.revokeObjectURL(url);
-
-      setGenerating(false);
+      await downloadReport(r.id);
       setDone(true);
       setTimeout(() => setDone(false), 3000);
     } catch {
-      setTimeout(() => {
-        setGenerating(false);
-        setDone(true);
-        setTimeout(() => setDone(false), 3000);
-      }, 2000);
+      setError(true);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -111,6 +109,8 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
         className={`mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors active:scale-[0.97] ${
           done
             ? "bg-emerald-100 text-emerald-700"
+            : error
+            ? "bg-rose-100 text-rose-700"
             : "bg-slate-900 text-white hover:bg-slate-800"
         }`}
       >
@@ -118,6 +118,8 @@ function ReportTypeCard({ r, i }: { r: typeof REPORT_TYPES[0]; i: number }) {
           <><Spinner className="h-3.5 w-3.5 animate-spin" /> Generating...</>
         ) : done ? (
           <><CheckCircle className="h-3.5 w-3.5" /> Generated</>
+        ) : error ? (
+          "Try again"
         ) : (
           <><FileArrowDown className="h-3.5 w-3.5" /> Generate ({r.estimate})</>
         )}
@@ -171,7 +173,12 @@ export default function ReportsPage() {
                       <CheckCircle className="h-3 w-3" />
                       {h.status}
                     </span>
-                    <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => void downloadReport(h.type === "Executive Summary" ? "executive" : h.type === "GRI Compliance" ? "gri" : "csrd").catch(() => undefined)}
+                      aria-label={`Download ${h.type}`}
+                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    >
                       <Download className="h-4 w-4" />
                     </button>
                   </div>

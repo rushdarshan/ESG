@@ -108,6 +108,32 @@ export default function GovernancePage() {
   const csrdPartial = csrdReqs.filter((r) => r.status === "partial").length;
   const csrdScore = csrdReqs.length ? Math.round((csrdMet / csrdReqs.length) * 100) : 0;
 
+  const downloadReport = async () => {
+    setGenerating(true);
+    try {
+      const response = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "executive" }),
+      });
+      if (!response.ok) throw new Error("Report generation failed");
+
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "EcoSphere_ESG_Report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setLastGenerated("just now");
+    } catch {
+      setLastGenerated("failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px]">
@@ -144,16 +170,7 @@ export default function GovernancePage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            onClick={async () => {
-              setGenerating(true);
-              try {
-                const res = await fetch("/api/reports", { method: "POST" });
-                if (res.ok) setLastGenerated("just now");
-              } catch {
-                // silently fail
-              }
-              setGenerating(false);
-            }}
+            onClick={downloadReport}
             disabled={generating}
             className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-violet-600/20 transition-colors hover:bg-violet-700 active:scale-[0.98] disabled:opacity-60"
           >
@@ -500,9 +517,14 @@ export default function GovernancePage() {
                   </div>
                 ))}
               </div>
-              <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-[0.98]">
+              <button
+                type="button"
+                onClick={downloadReport}
+                disabled={generating}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 <Download className="h-4 w-4" />
-                Download PDF (16 pages)
+                {generating ? "Generating PDF..." : "Download PDF"}
               </button>
             </motion.div>
           </div>

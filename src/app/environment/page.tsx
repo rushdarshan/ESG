@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -33,6 +34,15 @@ const QUICK_STATS = [
 ];
 
 export default function EnvironmentPage() {
+  const [organizationId, setOrganizationId] = useState<string>();
+
+  useEffect(() => {
+    fetch("/api/scenarios")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setOrganizationId(data?.scenarios?.[0]?.id))
+      .catch(() => undefined);
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px]">
@@ -124,7 +134,7 @@ export default function EnvironmentPage() {
               <h2 className="mb-4 text-sm font-semibold text-slate-800">
                 Upload Documents
               </h2>
-              <UploadZone />
+              <UploadZone organizationId={organizationId} />
             </motion.div>
 
             {/* Scope Breakdown */}

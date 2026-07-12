@@ -46,6 +46,8 @@ export function AIInsight({ title, message, type = "info" }: AIInsightProps) {
               </p>
             </div>
             <button
+              type="button"
+              aria-label="Dismiss insight"
               onClick={() => setDismissed(true)}
               className="flex-shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/60 hover:text-slate-600 active:scale-[0.9]"
             >

@@ -4,26 +4,24 @@ import { checkGRICompliance } from "@/lib/compliance/gri";
 import { checkCSRDCompliance } from "@/lib/compliance/csrd";
 import { verifyChain } from "@/lib/evidence/registry";
 import { ESGReport, type ReportMetrics } from "@/lib/pdf/report";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { Document, renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 
 // ── GET /api/reports ────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const organizationId = searchParams.get("organizationId");
+  const requestedOrganizationId = searchParams.get("organizationId");
+  const type = searchParams.get("type");
   const period = searchParams.get("period") || "2024-Q4";
-
-  if (!organizationId) {
-    return NextResponse.json(
-      { error: "organizationId is required" },
-      { status: 400 }
-    );
-  }
 
   try {
     if (!db) {
       return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    }
+    const organizationId = requestedOrganizationId ?? (await db.organization.findFirst({ select: { id: true } }))?.id;
+    if (!organizationId) {
+      return NextResponse.json({ error: "No organization seeded" }, { status: 404 });
     }
     // Fetch organization
     const org = await db.organization.findUnique({
@@ -154,6 +152,30 @@ export async function GET(request: NextRequest) {
       },
     };
 
+    if (type === "compliance") {
+      return NextResponse.json({
+        ...reportData,
+        frameworks: [
+          { label: "GRI Standards", score: griResult.overallScore, color: "bg-emerald-500" },
+          { label: "CSRD / ESRS", score: csrdResult.overallScore, color: "bg-blue-500" },
+        ],
+        gaps: reportData.compliance.gaps.map((label) => ({ label, status: "gap" })),
+        gri: griResult.disclosures.map((item) => ({
+          id: item.disclosure.code,
+          desc: item.disclosure.title,
+          status: item.coveragePercent === 100 ? "met" : item.covered ? "partial" : "gap",
+          evidence: Math.round((evidenceCount * item.coveragePercent) / 100),
+        })),
+        csrd: csrdResult.topics.map((item) => ({
+          id: item.topic.code,
+          desc: item.topic.title,
+          status: item.coveragePercent === 100 ? "met" : item.covered ? "partial" : "gap",
+          evidence: Math.round((evidenceCount * item.coveragePercent) / 100),
+        })),
+        evidenceCount,
+      });
+    }
+
     return NextResponse.json(reportData);
   } catch (error) {
     console.error("Report generation error:", error);
@@ -172,7 +194,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Database not configured" }, { status: 503 });
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const type = body.type || "executive";
 
     // Lookup first seeded organization
@@ -305,7 +327,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Render component to PDF Buffer
-    const buffer = await renderToBuffer(React.createElement(ESGReport, { data: reportData }) as any);
+    const reportDocument = React.createElement(ESGReport, { data: reportData }) as unknown as React.ReactElement<React.ComponentProps<typeof Document>>;
+    const buffer = await renderToBuffer(reportDocument);
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

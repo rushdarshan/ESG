@@ -2,7 +2,9 @@ import { Icon } from "@iconify/react";
 import type { IconProps } from "@iconify/react";
 
 function I(icon: string) {
-  return (props: Partial<IconProps>) => <Icon icon={icon} {...props} />;
+  const IconComponent = (props: Partial<IconProps>) => <Icon icon={icon} {...props} />;
+  IconComponent.displayName = `Icon(${icon})`;
+  return IconComponent;
 }
 
 export const ArrowRight = I("lucide:arrow-right");

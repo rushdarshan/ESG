@@ -6,8 +6,6 @@ import {
   Star,
   Lightning,
   Users,
-  ArrowRight,
-  SealCheck,
   Gift,
 } from "@/lib/icons";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
