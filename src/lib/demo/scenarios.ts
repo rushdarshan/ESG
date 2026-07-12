@@ -20,7 +20,7 @@ export async function listScenarios(): Promise<ScenarioInfo[]> {
   return orgs.map((org) => ({
     id: org.id,
     name: org.name,
-    label: org.scores[0]?.overall ?? 0 >= 70 ? "healthy" : "poor",
+    label: (org.scores[0]?.overall ?? 0) >= 70 ? "healthy" : "poor",
     score: org.scores[0]?.overall ?? null,
   }));
 }
@@ -51,8 +51,9 @@ export async function getScenarioData(organizationId: string) {
 
   const evidenceCount = await db.evidenceRecord.count();
 
-  const totalActions = org.departments.flatMap((d) => d.employees.flatMap((e) => e.actions)).length;
-  const totalXP = org.departments.flatMap((d) => d.employees.flatMap((e) => e.actions)).reduce((sum, a) => sum + a.xpAwarded, 0);
+  const allActions = org.departments.flatMap((d) => d.employees.flatMap((e) => e.actions));
+  const totalActions = allActions.length;
+  const totalXP = allActions.reduce((sum, a) => sum + a.xpAwarded, 0);
 
   return {
     organization: { id: org.id, name: org.name, industry: org.industry },
