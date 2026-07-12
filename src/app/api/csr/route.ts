@@ -28,8 +28,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { title, description, date, departmentId, organizerId } = body;
-    if (!title || !date) {
-      return NextResponse.json({ error: "title and date required" }, { status: 400 });
+    if (!title || typeof title !== "string" || title.trim().length < 2) {
+      return NextResponse.json({ error: "Title is required and must be at least 2 characters" }, { status: 400 });
+    }
+    if (!date) {
+      return NextResponse.json({ error: "Date is required. Please provide a valid date." }, { status: 400 });
     }
     const activity = await db.cSR_Activity.create({
       data: { title, description: description || null, date: new Date(date), departmentId: departmentId || null, organizerId: organizerId || null },

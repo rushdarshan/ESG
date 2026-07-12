@@ -19,8 +19,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, description, pointsRequired, stock } = body;
-    if (!name || !pointsRequired) {
-      return NextResponse.json({ error: "name and pointsRequired required" }, { status: 400 });
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
+      return NextResponse.json({ error: "Name is required and must be at least 2 characters" }, { status: 400 });
+    }
+    if (typeof pointsRequired !== "number" || pointsRequired < 1) {
+      return NextResponse.json({ error: "Points required must be a positive number" }, { status: 400 });
     }
     const reward = await db.reward.create({
       data: { name, description: description || null, pointsRequired, stock: stock ?? 0 },

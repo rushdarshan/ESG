@@ -28,8 +28,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { title, categoryId, description, xp, difficulty, evidenceRequired, deadline } = body;
-    if (!title) {
-      return NextResponse.json({ error: "title required" }, { status: 400 });
+    if (!title || typeof title !== "string" || title.trim().length < 2) {
+      return NextResponse.json({ error: "Title is required and must be at least 2 characters" }, { status: 400 });
+    }
+    if (xp !== undefined && (typeof xp !== "number" || xp < 0)) {
+      return NextResponse.json({ error: "XP must be a positive number" }, { status: 400 });
     }
     const challenge = await db.challenge.create({
       data: {
