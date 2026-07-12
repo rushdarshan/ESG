@@ -32,19 +32,24 @@ export interface ChainVerification {
   message: string;
 }
 
+function noDb() {
+  throw new Error("Database not configured. Set DATABASE_URL to enable persistence.");
+}
+
 // ── Core Registry ───────────────────────────────────────────────
 
 export async function addRecord(input: AddRecordInput): Promise<EvidenceRecord> {
+  if (!db) noDb();
   const serialized = serializeContent(input.content);
 
-  const lastRecord = await db.evidenceRecord.findFirst({
+  const lastRecord = await db!.evidenceRecord.findFirst({
     orderBy: { createdAt: "desc" },
   });
 
   const previousHash = lastRecord?.contentHash ?? null;
   const contentHash = computeHash(serialized, previousHash);
 
-  const record = await db.evidenceRecord.create({
+  const record = await db!.evidenceRecord.create({
     data: {
       contentHash,
       previousHash,
@@ -60,7 +65,8 @@ export async function addRecord(input: AddRecordInput): Promise<EvidenceRecord> 
 }
 
 export async function getRecordsBySource(source: string, limit = 50): Promise<EvidenceRecord[]> {
-  return db.evidenceRecord.findMany({
+  if (!db) noDb();
+  return db!.evidenceRecord.findMany({
     where: { source },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -68,14 +74,16 @@ export async function getRecordsBySource(source: string, limit = 50): Promise<Ev
 }
 
 export async function getRecordsByAction(actionId: string): Promise<EvidenceRecord[]> {
-  return db.evidenceRecord.findMany({
+  if (!db) noDb();
+  return db!.evidenceRecord.findMany({
     where: { actionId },
     orderBy: { createdAt: "asc" },
   });
 }
 
 export async function getRecordsByMetric(metricId: string): Promise<EvidenceRecord[]> {
-  return db.evidenceRecord.findMany({
+  if (!db) noDb();
+  return db!.evidenceRecord.findMany({
     where: { metricId },
     orderBy: { createdAt: "asc" },
   });
@@ -84,7 +92,8 @@ export async function getRecordsByMetric(metricId: string): Promise<EvidenceReco
 // ── Chain Verification ──────────────────────────────────────────
 
 export async function verifyChain(): Promise<ChainVerification> {
-  const records = await db.evidenceRecord.findMany({
+  if (!db) return { valid: true, totalRecords: 0, brokenAt: null, message: "No database configured." };
+  const records = await db!.evidenceRecord.findMany({
     orderBy: { createdAt: "asc" },
   });
 
@@ -126,11 +135,13 @@ export async function verifyChain(): Promise<ChainVerification> {
 }
 
 export async function getRecordCount(): Promise<number> {
-  return db.evidenceRecord.count();
+  if (!db) return 0;
+  return db!.evidenceRecord.count();
 }
 
 export async function getLatestRecord(): Promise<EvidenceRecord | null> {
-  return db.evidenceRecord.findFirst({
+  if (!db) return null;
+  return db!.evidenceRecord.findFirst({
     orderBy: { createdAt: "desc" },
   });
 }

@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured. Set DATABASE_URL." }, { status: 503 });
+    }
+
     // Check for duplicate within 24 hours
     const recentDuplicate = await db.employeeAction.findFirst({
       where: {
@@ -148,6 +152,9 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    if (!db) {
+      return NextResponse.json({ error: "Database not configured. Set DATABASE_URL." }, { status: 503 });
+    }
     const employeeId = searchParams.get("employeeId");
     const departmentId = searchParams.get("departmentId");
     const leaderboard = searchParams.get("leaderboard");

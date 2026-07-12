@@ -55,40 +55,47 @@ export async function POST(request: NextRequest) {
 
     const result = await calculateEmissions(extraction);
 
-    const metric = await db.eSGMetric.create({
-      data: {
-        organizationId,
-        scope: result.transaction.scope,
-        value: result.transaction.emissions,
-        unit: result.transaction.unit,
-        confidence: result.transaction.confidence,
-        category: result.transaction.category,
-        sourceDocumentId: null,
-        extractionLogic: extraction.rawText?.slice(0, 500) ?? null,
-        emissionFactorUsed: result.provenance.emissionFactorUsed,
-        emissionFactorVersion: result.provenance.emissionFactorVersion,
-        description: extraction.description || extraction.vendor,
-        period: extraction.date ?? null,
-      },
-    });
+    let metricId: string | null = null;
+    let evidenceId: string | null = null;
 
-    const evidence = await addRecord({
-      source: "upload",
-      sourceId: metric.id,
-      metricId: metric.id,
-      content: {
-        extraction,
-        transaction: result.transaction,
-        provenance: result.provenance,
-      },
-    });
+    if (db) {
+      const metric = await db.eSGMetric.create({
+        data: {
+          organizationId,
+          scope: result.transaction.scope,
+          value: result.transaction.emissions,
+          unit: result.transaction.unit,
+          confidence: result.transaction.confidence,
+          category: result.transaction.category,
+          sourceDocumentId: null,
+          extractionLogic: extraction.rawText?.slice(0, 500) ?? null,
+          emissionFactorUsed: result.provenance.emissionFactorUsed,
+          emissionFactorVersion: result.provenance.emissionFactorVersion,
+          description: extraction.description || extraction.vendor,
+          period: extraction.date ?? null,
+        },
+      });
+      metricId = metric.id;
+
+      const evidence = await addRecord({
+        source: "upload",
+        sourceId: metric.id,
+        metricId: metric.id,
+        content: {
+          extraction,
+          transaction: result.transaction,
+          provenance: result.provenance,
+        },
+      });
+      evidenceId = evidence.id;
+    }
 
     return NextResponse.json({
       extraction,
       transaction: result.transaction,
       provenance: result.provenance,
-      metricId: metric.id,
-      evidenceId: evidence.id,
+      metricId,
+      evidenceId,
     });
   } catch (error) {
     const message =
