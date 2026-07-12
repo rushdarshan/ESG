@@ -30,6 +30,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  color-scheme: light;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
