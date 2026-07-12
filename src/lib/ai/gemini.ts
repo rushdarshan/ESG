@@ -76,7 +76,9 @@ function mockExplainMetric(
     value,
     unit,
     explanation: `${metricName} is currently at ${value} ${unit}. This is a mock explanation — set GEMINI_API_KEY for AI-powered insights.`,
-    insights: ["Mock insight — configure GEMINI_API_KEY for real analysis"],
+    insights: [
+      "Mock insight — configure GEMINI_API_KEY for real analysis",
+    ],
     recommendations: [
       "Mock recommendation — configure GEMINI_API_KEY for AI suggestions",
     ],
@@ -132,10 +134,7 @@ export function createGeminiProvider(): AIProvider {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   return {
-    async extractDocument(
-      file: Buffer,
-      mimeType: string,
-    ): Promise<ExtractedDocument> {
+    async extractDocument(file: Buffer, mimeType: string): Promise<ExtractedDocument> {
       const result = await model.generateContent([
         extractDocumentPrompt(),
         {
@@ -190,7 +189,9 @@ export function createGeminiProvider(): AIProvider {
         complianceScore: number;
       };
     }): Promise<string> {
-      const result = await model.generateContent(generateReportPrompt(data));
+      const result = await model.generateContent(
+        generateReportPrompt(data),
+      );
       return result.response.text();
     },
 
@@ -202,7 +203,9 @@ export function createGeminiProvider(): AIProvider {
         unit: string;
       }>,
     ): Promise<AnomalyResult[]> {
-      const result = await model.generateContent(detectAnomalyPrompt(metrics));
+      const result = await model.generateContent(
+        detectAnomalyPrompt(metrics),
+      );
       return parseJsonResponse<AnomalyResult[]>(result.response.text());
     },
   };
