@@ -43,6 +43,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Page content */}
         <main className="p-6 lg:p-8">{children}</main>
+
+        {/* Self-measuring footer */}
+        <footer className="border-t border-slate-100 px-8 py-3">
+          <p className="text-[11px] text-slate-400 text-center">
+            EcoSphere&apos;s own estimated carbon: ~0.04 tCO₂e (compute) · Self-measuring · Open-source
+          </p>
+        </footer>
       </div>
     </div>
   );

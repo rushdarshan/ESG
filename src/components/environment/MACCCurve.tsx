@@ -14,16 +14,16 @@ import {
 import { CheckCircle, Plus } from "@phosphor-icons/react";
 
 const MACC_MEASURES = [
-  { id: "led", name: "LED Retrofit", costPerTonne: -45, reduction: 8.2, source: "IEA", selected: false },
-  { id: "insulation", name: "Building Insulation", costPerTonne: -32, reduction: 5.1, source: "IRENA", selected: false },
-  { id: "wfh", name: "WFH Policy Expansion", costPerTonne: -18, reduction: 3.4, source: "McKinsey", selected: false },
-  { id: "recycling", name: "Enhanced Recycling", costPerTonne: -12, reduction: 2.8, source: "NREL", selected: false },
-  { id: "solar", name: "Rooftop Solar (200kW)", costPerTonne: 28, reduction: 22.0, source: "IEA", selected: true },
-  { id: "ev", name: "EV Fleet Transition", costPerTonne: 45, reduction: 15.3, source: "IRENA", selected: false },
-  { id: "heatpump", name: "Heat Pump Install", costPerTonne: 62, reduction: 9.7, source: "NREL", selected: false },
-  { id: "bess", name: "Battery Storage", costPerTonne: 85, reduction: 6.4, source: "IEA", selected: false },
-  { id: "hydrogen", name: "Green Hydrogen Pilot", costPerTonne: 120, reduction: 4.2, source: "IRENA", selected: false },
-  { id: "ccs", name: "Carbon Capture (Pilot)", costPerTonne: 180, reduction: 12.0, source: "McKinsey", selected: false },
+  { id: "led", name: "LED Retrofit", costPerTonne: -45, reduction: 8.2, source: "IEA", payback: "8 months", selected: false },
+  { id: "insulation", name: "Building Insulation", costPerTonne: -32, reduction: 5.1, source: "IRENA", payback: "14 months", selected: false },
+  { id: "wfh", name: "WFH Policy Expansion", costPerTonne: -18, reduction: 3.4, source: "McKinsey", payback: "Immediate", selected: false },
+  { id: "recycling", name: "Enhanced Recycling", costPerTonne: -12, reduction: 2.8, source: "NREL", payback: "3 months", selected: false },
+  { id: "solar", name: "Rooftop Solar (200kW)", costPerTonne: 28, reduction: 22.0, source: "IEA", payback: "5 years", selected: true },
+  { id: "ev", name: "EV Fleet Transition", costPerTonne: 45, reduction: 15.3, source: "IRENA", payback: "4 years", selected: false },
+  { id: "heatpump", name: "Heat Pump Install", costPerTonne: 62, reduction: 9.7, source: "NREL", payback: "6 years", selected: false },
+  { id: "bess", name: "Battery Storage", costPerTonne: 85, reduction: 6.4, source: "IEA", payback: "7 years", selected: false },
+  { id: "hydrogen", name: "Green Hydrogen Pilot", costPerTonne: 120, reduction: 4.2, source: "IRENA", payback: "10+ years", selected: false },
+  { id: "ccs", name: "Carbon Capture (Pilot)", costPerTonne: 180, reduction: 12.0, source: "McKinsey", payback: "10+ years", selected: false },
 ];
 
 interface TooltipProps { active?: boolean; payload?: Array<{ payload: Record<string, unknown> }> }
@@ -34,8 +34,9 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
     <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-lg">
       <p className="text-[13px] font-semibold text-slate-800">{d.name}</p>
       <p className="mt-1 text-sm text-slate-600">
-        ${d.costPerTonne}/tCO₂e — {d.reduction} tCO₂e/year
+        ${d.costPerTonne}/tCO₂e · {d.reduction} tCO₂e/year
       </p>
+      <p className="text-[12px] font-medium text-emerald-600">Payback: {d.payback}</p>
       <p className="text-[11px] text-slate-400">Source: {d.source}</p>
     </div>
   );
@@ -155,6 +156,7 @@ export function MACCCurve() {
             >
               {m.costPerTonne < 0 ? "-" : ""}${Math.abs(m.costPerTonne)}/tCO₂e
             </span>
+            <span className="text-[11px] text-emerald-600 font-medium">{m.payback}</span>
             <span className="text-[12px] text-slate-400">
               {m.reduction} tCO₂e
             </span>

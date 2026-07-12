@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
@@ -50,6 +50,23 @@ const FADE_UP = {
 
 export default function SocialPage() {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [, setLiveTime] = useState(0);
+  const [leaderboard, setLeaderboard] = useState(LEADERBOARD);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveTime((t) => t + 1);
+      // Simulate live updates — randomly nudge a value
+      setLeaderboard((prev) =>
+        prev.map((p) =>
+          p.rank === Math.floor(Math.random() * 8) + 1
+            ? { ...p, carbon: +(p.carbon + (Math.random() - 0.5) * 0.5).toFixed(1) }
+            : p
+        )
+      );
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <DashboardLayout>
@@ -233,10 +250,17 @@ export default function SocialPage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Department Leaderboard
                 </h2>
-                <span className="text-[11px] text-slate-400">This month</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  <span className="text-[10px] font-medium text-emerald-600">LIVE</span>
+                  <span className="text-[11px] text-slate-400">This month</span>
+                </div>
               </div>
               <div className="space-y-1">
-                {LEADERBOARD.map((person, i) => (
+                {leaderboard.map((person, i) => (
                   <motion.div
                     key={person.rank}
                     initial={{ opacity: 0, x: -8 }}

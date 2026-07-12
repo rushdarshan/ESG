@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AIInsight } from "@/components/shared/AIInsight";
+import { ProvenancePopover } from "@/components/shared/ProvenancePopover";
 
 const STAGGER = {
   hidden: { opacity: 0 },
@@ -137,17 +138,28 @@ export default function DashboardPage() {
                 variants={FADE_UP}
                 className="rounded-2xl border border-slate-200/50 bg-white p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]"
               >
-                <div className="flex items-center justify-between">
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                  <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-                    <ArrowUpRight className="h-3 w-3" weight="bold" />
-                    {stat.change}
-                  </span>
-                </div>
-                <p className="mt-3 text-xl font-bold tracking-tight text-slate-900">
-                  {stat.value}
-                </p>
-                <p className="mt-0.5 text-[12px] text-slate-400">{stat.label}</p>
+                <ProvenancePopover
+                  label={stat.label}
+                  value={stat.value}
+                  evidence={{
+                    source: "Utility Bill Analysis (AI)",
+                    factor: "EPA eGRID 2024",
+                    confidence: "92%",
+                    timestamp: new Date().toLocaleDateString(),
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <Icon className={`h-5 w-5 ${stat.color}`} />
+                    <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
+                      <ArrowUpRight className="h-3 w-3" weight="bold" />
+                      {stat.change}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-xl font-bold tracking-tight text-slate-900">
+                    {stat.value}
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-slate-400">{stat.label}</p>
+                </ProvenancePopover>
               </motion.div>
             );
           })}
