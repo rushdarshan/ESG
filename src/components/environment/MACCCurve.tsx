@@ -152,7 +152,7 @@ export function MACCCurve() {
       </motion.div>
 
       {/* Measure list */}
-      <div className="space-y-1.5">
+      <div className="max-h-[360px] space-y-1.5 overflow-y-auto pr-1">
         {measures.map((m, i) => (
           <motion.button
             key={m.id}

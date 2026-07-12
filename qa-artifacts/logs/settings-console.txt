@@ -1,0 +1,447 @@
+﻿[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[warning] You have Reduced Motion enabled on your device. Animations may not appear as expected.
+[error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="page.tsx">
+            <SegmentTrieNode>
+            <ClientPageRoot Component={function LandingPage} serverProvidedParams={{...}}>
+              <LandingPage params={Promise} searchParams={Promise}>
+                <div className="min-h-[100...">
+                  <Nav>
+                  <main>
+                    <HeroSection r={true}>
+                      <section className="relative o...">
+                        <div className="mx-auto ma...">
+                          <div className="grid items...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                              <div
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} animate={{}} transition={{duration:0.8, ...}} className="relative">
+                              <div
+                                className="relative"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateX(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <TrustedBySection>
+                    <PillarsSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              className="mb-14 text-center"
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="grid gap-6...">
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                    <AIFeaturesSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="mt-12 grid...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <HowItWorksSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              className="mb-14 text-center"
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="grid gap-8...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <CTASection r={true}>
+                      <section className="py-24 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                            <div
+                              className="relative overflow-hidden rounded-3xl bg-emerald-600 px-8 py-16 text-center te..."
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(30px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                  ...
+          ...
+        ...
+
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[warning] You have Reduced Motion enabled on your device. Animations may not appear as expected.
+[error] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <RedirectBoundary>
+      <RedirectErrorBoundary router={{...}}>
+        <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+          <SegmentViewNode type="page" pagePath="page.tsx">
+            <SegmentTrieNode>
+            <ClientPageRoot Component={function LandingPage} serverProvidedParams={{...}}>
+              <LandingPage params={Promise} searchParams={Promise}>
+                <div className="min-h-[100...">
+                  <Nav>
+                  <main>
+                    <HeroSection r={true}>
+                      <section className="relative o...">
+                        <div className="mx-auto ma...">
+                          <div className="grid items...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                              <div
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} animate={{}} transition={{duration:0.8, ...}} className="relative">
+                              <div
+                                className="relative"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateX(40px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <TrustedBySection>
+                    <PillarsSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              className="mb-14 text-center"
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="grid gap-6...">
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                            ...
+                              <a className="group rela..." ref={function} onClick={function onClick} ...>
+                                <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                                  <div
+                                    className="h-full"
+                                    style={{
+-                                     opacity: "0"
+-                                     transform: "translateY(24px)"
+                                    }}
+                                    ref={function useMotionRef.useCallback}
+                                  >
+                    <AIFeaturesSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="mt-12 grid...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="flex gap-4 rounded-2xl border border-slate-200/60 bg-white p-6 transition-c..."
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(20px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <HowItWorksSection r={true}>
+                      <section className="py-20 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true, ...}} ...>
+                            <div
+                              className="mb-14 text-center"
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(24px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                          <div className="grid gap-8...">
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                            <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                              <div
+                                className="relative text-center"
+                                style={{
+-                                 opacity: "0"
+-                                 transform: "translateY(24px)"
+                                }}
+                                ref={function useMotionRef.useCallback}
+                              >
+                    <CTASection r={true}>
+                      <section className="py-24 md:p...">
+                        <div className="mx-auto ma...">
+                          <motion.div initial={{}} whileInView={{opacity:1,y:0}} viewport={{once:true}} ...>
+                            <div
+                              className="relative overflow-hidden rounded-3xl bg-emerald-600 px-8 py-16 text-center te..."
+                              style={{
+-                               opacity: "0"
+-                               transform: "translateY(30px)"
+                              }}
+                              ref={function useMotionRef.useCallback}
+                            >
+                  ...
+          ...
+        ...
+
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 301ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 1340ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 393ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 197ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 167ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 116ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 174ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 185ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 170ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 176ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
