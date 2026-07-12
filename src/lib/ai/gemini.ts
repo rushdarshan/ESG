@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+
 import type {
   AIProvider,
   ExtractedDocument,
@@ -6,6 +7,7 @@ import type {
   MetricExplanation,
   AnomalyResult,
 } from "./provider";
+
 import {
   extractDocumentPrompt,
   validateActionPrompt,
@@ -14,19 +16,36 @@ import {
   detectAnomalyPrompt,
 } from "./prompts";
 
+const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash";
+
 function getApiKey(): string | undefined {
   return process.env.GEMINI_API_KEY;
 }
 
+function getModelName(): string {
+  return process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+}
+
 function parseJsonResponse<T>(text: string): T {
-  const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
-  return JSON.parse(cleaned) as T;
+  const cleaned = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch {
+    throw new Error(
+      `Gemini returned invalid JSON: ${cleaned.slice(0, 300)}`,
+    );
+  }
 }
 
 function mockExtractDocument(): ExtractedDocument {
   return {
     vendor: "GreenForge Energy Co.",
-    amount: 1250.0,
+    amount: 1250,
     currency: "USD",
     date: "2024-06-15",
     category: "electricity",
@@ -48,16 +67,16 @@ function mockValidateAction(
     carpool: 4.3,
     work_from_home: 3.2,
     recycling: 2.1,
-    tree_planting: 21.0,
+    tree_planting: 21,
     csr_volunteering: 1.5,
-    energy_saving: 1.0,
+    energy_saving: 1,
     sustainability_training: 0.5,
   };
 
   return {
     actionType,
     confidence: 0.85,
-    carbonSaved: carbonMap[actionType] ?? 5.0,
+    carbonSaved: carbonMap[actionType] ?? 5,
     valid: true,
     reasons: [
       "Mock validation — set GEMINI_API_KEY for live AI",
@@ -75,7 +94,9 @@ function mockExplainMetric(
     metric: metricName,
     value,
     unit,
-    explanation: `${metricName} is currently at ${value} ${unit}. This is a mock explanation — set GEMINI_API_KEY for AI-powered insights.`,
+    explanation:
+      `${metricName} is currently at ${value} ${unit}. ` +
+      "This is a mock explanation — set GEMINI_API_KEY for AI-powered insights.",
     insights: [
       "Mock insight — configure GEMINI_API_KEY for real analysis",
     ],
@@ -88,7 +109,9 @@ function mockExplainMetric(
 function mockGenerateReport(data: {
   organizationName: string;
   period: string;
-  environmental: { totalEmissions: number };
+  environmental: {
+    totalEmissions: number;
+  };
 }): string {
   return [
     `ESG Executive Summary — ${data.organizationName} (${data.period})`,
@@ -99,20 +122,36 @@ function mockGenerateReport(data: {
 }
 
 function mockDetectAnomaly(
-  metrics: Array<{ name: string; current: number; previous: number; unit: string }>,
+  metrics: Array<{
+    name: string;
+    current: number;
+    previous: number;
+    unit: string;
+  }>,
 ): AnomalyResult[] {
   return metrics
-    .filter((m) => Math.abs((m.current - m.previous) / (m.previous || 1)) > 0.3)
-    .map((m) => ({
-      metric: m.name,
-      currentValue: m.current,
-      previousValue: m.previous,
-      percentChange: Number(
-        (((m.current - m.previous) / (m.previous || 1)) * 100).toFixed(1),
-      ),
-      severity: "medium" as const,
-      explanation: "Mock anomaly — set GEMINI_API_KEY for AI analysis",
-    }));
+    .filter((metric) => {
+      const denominator = metric.previous || 1;
+      const change =
+        (metric.current - metric.previous) / denominator;
+
+      return Math.abs(change) > 0.3;
+    })
+    .map((metric) => {
+      const denominator = metric.previous || 1;
+      const percentChange =
+        ((metric.current - metric.previous) / denominator) * 100;
+
+      return {
+        metric: metric.name,
+        currentValue: metric.current,
+        previousValue: metric.previous,
+        percentChange: Number(percentChange.toFixed(1)),
+        severity: "medium" as const,
+        explanation:
+          "Mock anomaly — set GEMINI_API_KEY for AI analysis",
+      };
+    });
 }
 
 export function createGeminiProvider(): AIProvider {
@@ -121,30 +160,75 @@ export function createGeminiProvider(): AIProvider {
   if (!apiKey) {
     return {
       extractDocument: async () => mockExtractDocument(),
-      validateAction: async (actionType, evidenceDescription) =>
-        mockValidateAction(actionType, evidenceDescription),
-      explainMetric: async (metricName, value, unit) =>
-        mockExplainMetric(metricName, value, unit),
-      generateReport: async (data) => mockGenerateReport(data),
-      detectAnomaly: async (metrics) => mockDetectAnomaly(metrics),
+
+      validateAction: async (
+        actionType,
+        evidenceDescription,
+      ) => mockValidateAction(actionType, evidenceDescription),
+
+      explainMetric: async (
+        metricName,
+        value,
+        unit,
+      ) => mockExplainMetric(metricName, value, unit),
+
+      generateReport: async (data) =>
+        mockGenerateReport(data),
+
+      detectAnomaly: async (metrics) =>
+        mockDetectAnomaly(metrics),
     };
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const model = genAI.getGenerativeModel({
+    model: getModelName(),
+  });
 
   return {
-    async extractDocument(file: Buffer, mimeType: string): Promise<ExtractedDocument> {
-      const result = await model.generateContent([
-        extractDocumentPrompt(),
-        {
-          inlineData: {
-            mimeType,
-            data: file.toString("base64"),
+    async extractDocument(
+      file: Buffer,
+      mimeType: string,
+    ): Promise<ExtractedDocument> {
+      const normalizedMimeType =
+        mimeType.split(";")[0]?.trim().toLowerCase() ||
+        "application/octet-stream";
+
+      const isTextFile =
+        normalizedMimeType.startsWith("text/") ||
+        normalizedMimeType === "application/csv" ||
+        normalizedMimeType === "application/json";
+
+      let responseText: string;
+
+      if (isTextFile) {
+        const documentText = file.toString("utf8");
+
+        const result = await model.generateContent([
+          extractDocumentPrompt(),
+          `Document MIME type: ${normalizedMimeType}`,
+          `Document contents:\n\n${documentText}`,
+        ]);
+
+        responseText = result.response.text();
+      } else {
+        const result = await model.generateContent([
+          extractDocumentPrompt(),
+          {
+            inlineData: {
+              mimeType: normalizedMimeType,
+              data: file.toString("base64"),
+            },
           },
-        },
-      ]);
-      return parseJsonResponse<ExtractedDocument>(result.response.text());
+        ]);
+
+        responseText = result.response.text();
+      }
+
+      return parseJsonResponse<ExtractedDocument>(
+        responseText,
+      );
     },
 
     async validateAction(
@@ -152,9 +236,15 @@ export function createGeminiProvider(): AIProvider {
       evidenceDescription: string,
     ): Promise<ActionValidation> {
       const result = await model.generateContent(
-        validateActionPrompt(actionType, evidenceDescription),
+        validateActionPrompt(
+          actionType,
+          evidenceDescription,
+        ),
       );
-      return parseJsonResponse<ActionValidation>(result.response.text());
+
+      return parseJsonResponse<ActionValidation>(
+        result.response.text(),
+      );
     },
 
     async explainMetric(
@@ -164,9 +254,17 @@ export function createGeminiProvider(): AIProvider {
       context: Record<string, unknown>,
     ): Promise<MetricExplanation> {
       const result = await model.generateContent(
-        explainMetricPrompt(metricName, value, unit, context),
+        explainMetricPrompt(
+          metricName,
+          value,
+          unit,
+          context,
+        ),
       );
-      return parseJsonResponse<MetricExplanation>(result.response.text());
+
+      return parseJsonResponse<MetricExplanation>(
+        result.response.text(),
+      );
     },
 
     async generateReport(data: {
@@ -181,8 +279,14 @@ export function createGeminiProvider(): AIProvider {
       };
       social: {
         totalActions: number;
-        topContributors: Array<{ name: string; carbonSaved: number }>;
-        departmentRankings: Array<{ name: string; totalSaved: number }>;
+        topContributors: Array<{
+          name: string;
+          carbonSaved: number;
+        }>;
+        departmentRankings: Array<{
+          name: string;
+          totalSaved: number;
+        }>;
       };
       governance: {
         evidenceCount: number;
@@ -192,6 +296,7 @@ export function createGeminiProvider(): AIProvider {
       const result = await model.generateContent(
         generateReportPrompt(data),
       );
+
       return result.response.text();
     },
 
@@ -206,16 +311,20 @@ export function createGeminiProvider(): AIProvider {
       const result = await model.generateContent(
         detectAnomalyPrompt(metrics),
       );
-      return parseJsonResponse<AnomalyResult[]>(result.response.text());
+
+      return parseJsonResponse<AnomalyResult[]>(
+        result.response.text(),
+      );
     },
   };
 }
 
-let _provider: AIProvider | null = null;
+let provider: AIProvider | null = null;
 
 export function getAIProvider(): AIProvider {
-  if (!_provider) {
-    _provider = createGeminiProvider();
+  if (!provider) {
+    provider = createGeminiProvider();
   }
-  return _provider;
+
+  return provider;
 }

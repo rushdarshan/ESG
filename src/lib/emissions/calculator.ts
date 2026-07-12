@@ -70,7 +70,7 @@ export async function calculateEmissions(
     emissionFactorUsed: factor.description,
     emissionFactorVersion: factor.version,
     confidence: transaction.confidence,
-    aiModel: "gemini-1.5-flash",
+    aiModel: process.env.GEMINI_MODEL || "unknown",
   };
 
   return { transaction, provenance };
