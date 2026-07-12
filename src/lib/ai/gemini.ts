@@ -131,7 +131,8 @@ export function createGeminiProvider(): AIProvider {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const model = genAI.getGenerativeModel({ model: modelName });
 
   return {
     async extractDocument(file: Buffer, mimeType: string): Promise<ExtractedDocument> {
