@@ -12,7 +12,6 @@ import {
   Hash,
   Clock,
   Download,
-  Sparkle,
   CaretDown,
   CaretUp,
 } from "@phosphor-icons/react";
@@ -141,7 +140,7 @@ export default function GovernancePage() {
             { label: "CSRD Score", value: "72%", color: "text-blue-600" },
             { label: "Evidence Records", value: "142", color: "text-slate-900" },
             { label: "Open Gaps", value: `${griGap}`, color: "text-rose-600" },
-          ].map((stat, i) => (
+          ].map((stat) => (
             <motion.div
               key={stat.label}
               variants={FADE_UP}
@@ -432,7 +431,7 @@ export default function GovernancePage() {
                   { section: "Social Impact", pages: 3 },
                   { section: "Governance & Compliance", pages: 5 },
                   { section: "Recommendations", pages: 2 },
-                ].map((s, i) => (
+                ].map((s) => (
                   <div
                     key={s.section}
                     className="flex items-center justify-between rounded-xl px-4 py-2.5"
