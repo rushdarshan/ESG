@@ -14,7 +14,7 @@ export default function GovernanceReportPage() {
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">Governance Report</h1>
             <p className="mt-1 text-sm text-slate-500">Q2 2026</p>
           </div>
-          <button className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg transition-colors hover:bg-emerald-700">
+          <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-[13px] font-medium text-white shadow-lg transition-colors hover:bg-emerald-700">
             <Download className="h-4 w-4" /> Export PDF
           </button>
         </div>
