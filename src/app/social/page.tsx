@@ -52,6 +52,20 @@ export default function SocialPage() {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [, setLiveTime] = useState(0);
   const [leaderboard, setLeaderboard] = useState(LEADERBOARD);
+  const [totalActions, setTotalActions] = useState("1,284");
+  const [activeParticipants, setActiveParticipants] = useState("487");
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.totalActions) {
+          setTotalActions(String(d.totalActions));
+          setActiveParticipants(String(d.activeParticipants));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -143,8 +157,8 @@ export default function SocialPage() {
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
           {[
-            { label: "Total Actions", value: "1,284", icon: Target, color: "text-emerald-500" },
-            { label: "Active Participants", value: "487", icon: Users, color: "text-blue-500" },
+            { label: "Total Actions", value: totalActions, icon: Target, color: "text-emerald-500" },
+            { label: "Active Participants", value: activeParticipants, icon: Users, color: "text-blue-500" },
             { label: "Carbon Saved", value: "142.8 tCO₂e", icon: Flame, color: "text-amber-500" },
             { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500" },
           ].map((stat) => {
