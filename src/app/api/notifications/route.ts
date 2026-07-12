@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       data: { employeeId, title, message, type: type || "info" },
     });
     return NextResponse.json(notification, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }
@@ -40,7 +40,7 @@ export async function PATCH(request: NextRequest) {
       data: { read: true },
     });
     return NextResponse.json(notification);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Update failed" }, { status: 400 });
   }
 }

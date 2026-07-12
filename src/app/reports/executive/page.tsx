@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChartBar, Download } from "@phosphor-icons/react";
+import { Download } from "@phosphor-icons/react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 export default function ExecutiveReportPage() {

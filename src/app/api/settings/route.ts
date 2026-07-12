@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     // Settings stored in-memory for hackathon
     return NextResponse.json({ ok: true, settings: body });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }

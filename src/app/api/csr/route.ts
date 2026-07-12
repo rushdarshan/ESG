@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       data: { title, description: description || null, date: new Date(date), departmentId: departmentId || null, organizerId: organizerId || null },
     });
     return NextResponse.json(activity, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }

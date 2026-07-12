@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       data: { name, description: description || null, pointsRequired, stock: stock ?? 0 },
     });
     return NextResponse.json(reward, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }

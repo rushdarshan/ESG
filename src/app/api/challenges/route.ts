@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       },
     });
     return NextResponse.json(challenge, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }
@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest) {
     if (data.deadline) data.deadline = new Date(data.deadline);
     const challenge = await db.challenge.update({ where: { id }, data });
     return NextResponse.json(challenge);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Update failed" }, { status: 400 });
   }
 }

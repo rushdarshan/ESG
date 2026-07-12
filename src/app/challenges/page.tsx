@@ -6,11 +6,7 @@ import {
   Trophy,
   Fire,
   Clock,
-  CheckCircle,
-  XCircle,
   Plus,
-  CaretDown,
-  CaretUp,
 } from "@phosphor-icons/react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
