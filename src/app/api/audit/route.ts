@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       data: { title, organizationId, date: new Date(date), findings: findings || null },
     });
     return NextResponse.json(audit, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 }
@@ -89,7 +89,7 @@ export async function PATCH(request: NextRequest) {
     }
     const audit = await db.audit.update({ where: { id }, data });
     return NextResponse.json(audit);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Update failed" }, { status: 400 });
   }
 }
