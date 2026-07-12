@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -74,6 +75,26 @@ const RECENT_ACTIONS = [
 ];
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    totalActions: 1284, activeParticipants: 487, badgesEarned: 892,
+    carbonFootprint: "342 tCO₂e", waterUsage: "45,000 L",
+  });
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.totalActions) setStats({
+          totalActions: d.totalActions,
+          activeParticipants: d.activeParticipants,
+          badgesEarned: d.badgesEarned,
+          carbonFootprint: d.carbonFootprint,
+          waterUsage: d.waterUsage,
+        });
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-[1400px]">
@@ -126,10 +147,10 @@ export default function DashboardPage() {
           className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"
         >
           {[
-            { label: "Carbon Footprint", value: "342 tCO₂e", icon: Lightning, color: "text-amber-500", change: "-6.2%" },
-            { label: "Water Usage", value: "45,000 L", icon: Drop, color: "text-blue-500", change: "+1.3%" },
-            { label: "Employee Actions", value: "1,284", icon: Target, color: "text-emerald-500", change: "+18%" },
-            { label: "Badges Earned", value: "892", icon: Trophy, color: "text-violet-500", change: "+12%" },
+            { label: "Carbon Footprint", value: stats.carbonFootprint, icon: Lightning, color: "text-amber-500", change: "-6.2%" },
+            { label: "Water Usage", value: stats.waterUsage, icon: Drop, color: "text-blue-500", change: "+1.3%" },
+            { label: "Employee Actions", value: String(stats.totalActions), icon: Target, color: "text-emerald-500", change: "+18%" },
+            { label: "Badges Earned", value: String(stats.badgesEarned), icon: Trophy, color: "text-violet-500", change: "+12%" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
